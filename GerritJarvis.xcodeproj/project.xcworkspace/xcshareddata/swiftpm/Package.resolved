@@ -1,5 +1,5 @@
 {
-  "originHash" : "30c1dadb03b0f29c662aae61886d330eefeb2449eac73c12cdef72d1136dc3e2",
+  "originHash" : "1e5e6239da61d2890c200fe5489ecda343294cc28a02beb3771934ed484ba742",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -8,6 +8,24 @@
       "state" : {
         "revision" : "f455c2975872ccd2d9c81594c658af65716e9b9a",
         "version" : "5.9.1"
+      }
+    },
+    {
+      "identity" : "gitlabswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/malcommac/GitLabSwift",
+      "state" : {
+        "revision" : "5f3f03e87722aa61a26a3dec81f1fca75a6de102",
+        "version" : "0.9.1"
+      }
+    },
+    {
+      "identity" : "glider",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/immobiliare/Glider",
+      "state" : {
+        "revision" : "c93275370925fbdb30cbe5507c6cdd2d0afe426f",
+        "version" : "2.0.6"
       }
     },
     {
@@ -26,6 +44,15 @@
       "state" : {
         "revision" : "6021c6035e83a306047348666f6400dc61445d3b",
         "version" : "4.4.3"
+      }
+    },
+    {
+      "identity" : "realhttp",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/immobiliare/RealHTTP.git",
+      "state" : {
+        "revision" : "c0ffb265eae8684da02ad20cfcc147c23463ad95",
+        "version" : "1.8.3"
       }
     },
     {
