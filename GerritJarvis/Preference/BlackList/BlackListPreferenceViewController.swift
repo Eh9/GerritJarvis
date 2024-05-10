@@ -7,12 +7,11 @@
 //
 
 import Cocoa
-import Preferences
+import Settings
 
-class BlackListPreferenceViewController: NSViewController, PreferencePane, NSTableViewDataSource, NSTableViewDelegate {
-
-    let preferencePaneIdentifier = Preferences.PaneIdentifier.blacklist
-    let preferencePaneTitle = "Blacklist"
+class BlackListPreferenceViewController: NSViewController, SettingsPane, NSTableViewDataSource, NSTableViewDelegate {
+    let paneIdentifier = Settings.PaneIdentifier.blacklist
+    let paneTitle = "Blacklist"
     let toolbarItemIcon = NSImage(named: NSImage.userName)!
 
     private enum CellIdentifiers {
@@ -20,11 +19,11 @@ class BlackListPreferenceViewController: NSViewController, PreferencePane, NSTab
         static let ValueCell = "ValueCell"
     }
 
-    @IBOutlet weak var tableView: NSTableView!
-    @IBOutlet weak var addButton: NSButton!
-    @IBOutlet weak var deleteButton: NSButton!
-    @IBOutlet weak var typeButton: NSPopUpButton!
-    @IBOutlet weak var valueTextField: NSTextField!
+    @IBOutlet var tableView: NSTableView!
+    @IBOutlet var addButton: NSButton!
+    @IBOutlet var deleteButton: NSButton!
+    @IBOutlet var typeButton: NSPopUpButton!
+    @IBOutlet var valueTextField: NSTextField!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,16 +34,17 @@ class BlackListPreferenceViewController: NSViewController, PreferencePane, NSTab
     private func renderButton() {
         deleteButton.isEnabled = ConfigManager.shared.blacklist.count > 0
     }
-    
+
     @IBAction func addValue(_ sender: Any) {
         let value = valueTextField.stringValue.trimmingCharacters(in: .whitespaces)
         guard value.count > 0 else {
             return
         }
-        let type = (typeButton.indexOfSelectedItem == 0) ? ConfigManager.BlacklistType.User : ConfigManager.BlacklistType.Project
+        let type = (typeButton.indexOfSelectedItem == 0) ? ConfigManager.BlacklistType.User : ConfigManager
+            .BlacklistType.Project
         var found = false
         for (t, v) in ConfigManager.shared.blacklist {
-            if type == t && value == v {
+            if type == t, value == v {
                 found = true
                 break
             }
@@ -73,7 +73,7 @@ class BlackListPreferenceViewController: NSViewController, PreferencePane, NSTab
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
         let (type, value) = ConfigManager.shared.blacklist[row]
         var text = ""
-        var identifier: NSUserInterfaceItemIdentifier? = nil
+        var identifier: NSUserInterfaceItemIdentifier?
         if tableColumn == tableView.tableColumns[0] {
             text = type
             identifier = NSUserInterfaceItemIdentifier(rawValue: CellIdentifiers.TypeCell)
@@ -82,7 +82,8 @@ class BlackListPreferenceViewController: NSViewController, PreferencePane, NSTab
             identifier = NSUserInterfaceItemIdentifier(rawValue: CellIdentifiers.ValueCell)
         }
         guard let cellIdentifier = identifier,
-            let cell = tableView.makeView(withIdentifier:cellIdentifier, owner: nil) as? NSTableCellView else {
+              let cell = tableView.makeView(withIdentifier: cellIdentifier, owner: nil) as? NSTableCellView
+        else {
             return nil
         }
         cell.textField?.stringValue = text
@@ -92,5 +93,4 @@ class BlackListPreferenceViewController: NSViewController, PreferencePane, NSTab
     func tableView(_ tableView: NSTableView, shouldSelectRow row: Int) -> Bool {
         return true
     }
-
 }

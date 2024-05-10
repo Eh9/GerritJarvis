@@ -7,13 +7,9 @@
 //
 
 import Cocoa
-import Preferences
+import Settings
 
-import AppCenter
-import AppCenterAnalytics
-import AppCenterCrashes
-
-extension Preferences.PaneIdentifier {
+extension Settings.PaneIdentifier {
     static let general = Self("general")
     static let account = Self("account")
     static let blacklist = Self("blacklist")
@@ -21,18 +17,18 @@ extension Preferences.PaneIdentifier {
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
-
-    let statusItem = NSStatusBar.system.statusItem(withLength:NSStatusItem.variableLength)
+    let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
     lazy var popover: NSPopover = {
         let pop = NSPopover()
         pop.behavior = .transient
-        pop.contentViewController = ReviewListViewController.freshController(dataController: self.reviewListDataController)
+        pop.contentViewController = ReviewListViewController
+            .freshController(dataController: self.reviewListDataController)
         return pop
     }()
 
-    lazy var preferencesWindowController = PreferencesWindowController(
-        preferencePanes: [
+    lazy var preferencesWindowController = SettingsWindowController(
+        panes: [
             GeneralPreferenceViewController(),
             AccountPreferenceViewController(),
             BlackListPreferenceViewController()
@@ -44,40 +40,35 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
 
-        // use your own secret
-//        AppCenter.start(withAppSecret: "", services:[
-//          Analytics.self,
-//          Crashes.self
-//        ])
-
         initPopover()
 
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(reviewListUpdated(notification:)),
-                                               name: ReviewListDataController.ReviewListNewEventsNotification,
-                                               object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(reviewListUpdated(notification:)),
+            name: ReviewListDataController.ReviewListNewEventsNotification,
+            object: nil
+        )
 
         if ConfigManager.shared.hasUser(),
-            let baseUrl = ConfigManager.shared.baseUrl,
-            let user = ConfigManager.shared.user,
-            let password = ConfigManager.shared.password {
+           let baseUrl = ConfigManager.shared.baseUrl,
+           let user = ConfigManager.shared.user,
+           let password = ConfigManager.shared.password
+        {
             reviewListDataController.changeAccount(baseUrl: baseUrl, user: user, password: password)
-            Analytics.trackEvent("launch", withProperties: ["user": user])
         }
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
         // Insert code here to tear down your application
     }
-
 }
 
 // MARK: - Popover
-extension AppDelegate {
 
+extension AppDelegate {
     private func initPopover() {
         if let button = statusItem.button {
-            button.image = NSImage(named:NSImage.Name("CodeReview"))
+            button.image = NSImage(named: NSImage.Name("CodeReview"))
             button.imagePosition = .imageLeft
             button.action = #selector(togglePopover(_:))
         }
@@ -101,28 +92,27 @@ extension AppDelegate {
     func closePopover(sender: Any?) {
         popover.performClose(sender)
     }
-
 }
 
 // MARK: - Preference
-extension AppDelegate {
 
+extension AppDelegate {
     func showPreference() {
         if ConfigManager.shared.hasUser() {
-            preferencesWindowController.show(preferencePane: .general)
+            preferencesWindowController.show(pane: .general)
         } else {
-            preferencesWindowController.show(preferencePane: .account)
+            preferencesWindowController.show(pane: .account)
         }
     }
-
 }
 
 // MARK: - Event Count
-extension AppDelegate {
 
+extension AppDelegate {
     @objc func reviewListUpdated(notification: Notification?) {
         guard let userInfo = notification?.userInfo,
-            let newEvents = userInfo[ReviewListDataController.ReviewListNewEventsKey] as? Int else {
+              let newEvents = userInfo[ReviewListDataController.ReviewListNewEventsKey] as? Int
+        else {
             updateEventCount(0)
             return
         }
@@ -140,5 +130,4 @@ extension AppDelegate {
             button.title = String(count)
         }
     }
-
 }

@@ -7,20 +7,19 @@
 //
 
 import Cocoa
-import Preferences
+import Settings
 import LaunchAtLogin
 
-class GeneralPreferenceViewController: NSViewController, PreferencePane {
-
-    let preferencePaneIdentifier = Preferences.PaneIdentifier.general
-    let preferencePaneTitle = "General"
+class GeneralPreferenceViewController: NSViewController, SettingsPane {
+    let paneIdentifier = Settings.PaneIdentifier.general
+    let paneTitle = "General"
     let toolbarItemIcon = NSImage(named: NSImage.preferencesGeneralName)!
 
-    @IBOutlet weak var launchAtLoginButton: NSButton!
-    @IBOutlet weak var mergeConflictButton: NSButton!
-    @IBOutlet weak var notifyNewIncomingButton: NSButton!
-    @IBOutlet weak var showOurNotReadyReviewButton: NSButton!
-    @IBOutlet weak var frequencyButton: NSPopUpButton!
+    @IBOutlet var launchAtLoginButton: NSButton!
+    @IBOutlet var mergeConflictButton: NSButton!
+    @IBOutlet var notifyNewIncomingButton: NSButton!
+    @IBOutlet var showOurNotReadyReviewButton: NSButton!
+    @IBOutlet var frequencyButton: NSPopUpButton!
 
     @IBAction func launchAtLoginClicked(_ sender: NSButton) {
         ConfigManager.shared.launchAtLogin = (sender.state == .on)
@@ -30,7 +29,7 @@ class GeneralPreferenceViewController: NSViewController, PreferencePane {
     @IBAction func notifyMergeConflictClicked(_ sender: NSButton) {
         ConfigManager.shared.shouldNotifyMergeConflict = (sender.state == .on)
     }
-    
+
     @IBAction func notifyNewIncomingClicked(_ sender: NSButton) {
         ConfigManager.shared.shouldNotifyNewIncomingReview = (sender.state == .on)
     }
@@ -57,7 +56,7 @@ class GeneralPreferenceViewController: NSViewController, PreferencePane {
 
         let values: [TimeInterval] = [1, 3, 5, 10, 30]
         let frequency = ConfigManager.shared.refreshFrequency
-        var index: Int? = nil
+        var index: Int?
         for (i, value) in values.enumerated() {
             if frequency == value {
                 index = i
@@ -68,5 +67,4 @@ class GeneralPreferenceViewController: NSViewController, PreferencePane {
             frequencyButton.selectItem(at: index)
         }
     }
-    
 }

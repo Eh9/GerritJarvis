@@ -7,20 +7,18 @@
 //
 
 import Cocoa
-import Preferences
-import AppCenterAnalytics
+import Settings
 
-class AccountPreferenceViewController: NSViewController, PreferencePane {
-
-    let preferencePaneIdentifier = Preferences.PaneIdentifier.account
-    let preferencePaneTitle = "Account"
+class AccountPreferenceViewController: NSViewController, SettingsPane {
+    let paneIdentifier = Settings.PaneIdentifier.account
+    let paneTitle = "Account"
     let toolbarItemIcon = NSImage(named: NSImage.advancedName)!
 
-    @IBOutlet weak var baseUrlTextField: NSTextField!
-    @IBOutlet weak var userTextField: NSTextField!
-    @IBOutlet weak var passwordTextField: PasteTextField!
-    @IBOutlet weak var saveButton: NSButton!
-    @IBOutlet weak var indicator: NSProgressIndicator!
+    @IBOutlet var baseUrlTextField: NSTextField!
+    @IBOutlet var userTextField: NSTextField!
+    @IBOutlet var passwordTextField: PasteTextField!
+    @IBOutlet var saveButton: NSButton!
+    @IBOutlet var indicator: NSProgressIndicator!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,7 +37,7 @@ class AccountPreferenceViewController: NSViewController, PreferencePane {
             passwordTextField.stringValue = password
         }
     }
-    
+
     @IBAction func saveButtonClicked(_ sender: Any) {
         let baseUrl = baseUrlTextField.stringValue
         if baseUrl.isEmpty {
@@ -69,8 +67,9 @@ class AccountPreferenceViewController: NSViewController, PreferencePane {
             self.indicator.isHidden = true
             self.indicator.stopAnimation(nil)
             guard let account = account,
-                let accountId = account.accountId,
-                let name = account.username else {
+                  let accountId = account.accountId,
+                  let name = account.username
+            else {
                 if statusCode == 401 {
                     self.showAlert(NSLocalizedString("Unauthorized", comment: ""))
                 } else {
@@ -84,7 +83,6 @@ class AccountPreferenceViewController: NSViewController, PreferencePane {
             }
 
             ConfigManager.shared.update(baseUrl: baseUrl, user: user, password: password, accountId: accountId)
-            Analytics.trackEvent("login", withProperties: ["user": user])
 
             let alert = NSAlert()
             alert.addButton(withTitle: NSLocalizedString("OK", comment: ""))
@@ -106,12 +104,15 @@ class AccountPreferenceViewController: NSViewController, PreferencePane {
 
     private func verifyUrl(urlString: String) -> Bool {
         let detector = try! NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
-        if let match = detector.firstMatch(in: urlString, options: [], range: NSRange(location: 0, length: urlString.utf16.count)) {
+        if let match = detector.firstMatch(
+            in: urlString,
+            options: [],
+            range: NSRange(location: 0, length: urlString.utf16.count)
+        ) {
             // it is a link, if the match covers the whole string
             return match.range.length == urlString.utf16.count
         } else {
             return false
         }
     }
-
 }
