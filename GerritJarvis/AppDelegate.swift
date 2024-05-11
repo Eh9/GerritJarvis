@@ -11,7 +11,8 @@ import Settings
 
 extension Settings.PaneIdentifier {
     static let general = Self("general")
-    static let account = Self("account")
+    static let account = Self("gerrit")
+    static let gitlabAccount = Self("gitlab")
     static let blacklist = Self("blacklist")
 }
 
@@ -31,7 +32,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         panes: [
             GeneralPreferenceViewController(),
             AccountPreferenceViewController(),
-            BlackListPreferenceViewController()
+            Settings.Pane(
+                identifier: .gitlabAccount,
+                title: "GitLabAccount",
+                toolbarIcon: NSImage(named: NSImage.advancedName)!
+            ) {
+                GitLabAccountSettingView()
+            },
+            BlackListPreferenceViewController(),
         ]
     )
 

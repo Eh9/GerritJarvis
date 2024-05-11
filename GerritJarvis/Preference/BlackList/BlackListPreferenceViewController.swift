@@ -9,6 +9,10 @@
 import Cocoa
 import Settings
 
+extension BlackListPreferenceViewController: SettingsPaneConvertible {
+    func asSettingsPane() -> any SettingsPane { self }
+}
+
 class BlackListPreferenceViewController: NSViewController, SettingsPane, NSTableViewDataSource, NSTableViewDelegate {
     let paneIdentifier = Settings.PaneIdentifier.blacklist
     let paneTitle = "Blacklist"

@@ -10,6 +10,10 @@ import Cocoa
 import Settings
 import LaunchAtLogin
 
+extension GeneralPreferenceViewController: SettingsPaneConvertible {
+    func asSettingsPane() -> any SettingsPane { self }
+}
+
 class GeneralPreferenceViewController: NSViewController, SettingsPane {
     let paneIdentifier = Settings.PaneIdentifier.general
     let paneTitle = "General"

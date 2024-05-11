@@ -9,9 +9,13 @@
 import Cocoa
 import Settings
 
+extension AccountPreferenceViewController: SettingsPaneConvertible {
+    func asSettingsPane() -> any SettingsPane { self }
+}
+
 class AccountPreferenceViewController: NSViewController, SettingsPane {
     let paneIdentifier = Settings.PaneIdentifier.account
-    let paneTitle = "Account"
+    let paneTitle = "GerritAccount"
     let toolbarItemIcon = NSImage(named: NSImage.advancedName)!
 
     @IBOutlet var baseUrlTextField: NSTextField!
