@@ -14,6 +14,8 @@
 		8D50D2FE2BEE074100E8AC01 /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D2FD2BEE074100E8AC01 /* LaunchAtLogin */; };
 		8D50D3012BEE2A2900E8AC01 /* GitLabSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D3002BEE2A2900E8AC01 /* GitLabSwift */; };
 		8D50D3092BEF4C5700E8AC01 /* GitlabAccountSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D50D3082BEF4C5700E8AC01 /* GitlabAccountSettingView.swift */; };
+		8D50D30F2BEF670600E8AC01 /* GitLabService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D50D30E2BEF670600E8AC01 /* GitLabService.swift */; };
+		8D50D3112BEF685800E8AC01 /* GitLabConfigs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D50D3102BEF685800E8AC01 /* GitLabConfigs.swift */; };
 		D207F0DD2272BBA5000EB2B4 /* Avatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D207F0DC2272BBA4000EB2B4 /* Avatar.swift */; };
 		D207F0E02272BE06000EB2B4 /* GerritResponseUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = D207F0DF2272BE06000EB2B4 /* GerritResponseUtils.swift */; };
 		D2350AE32180616A0002A17D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2350AE22180616A0002A17D /* AppDelegate.swift */; };
@@ -64,6 +66,8 @@
 
 /* Begin PBXFileReference section */
 		8D50D3082BEF4C5700E8AC01 /* GitlabAccountSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitlabAccountSettingView.swift; sourceTree = "<group>"; };
+		8D50D30E2BEF670600E8AC01 /* GitLabService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitLabService.swift; sourceTree = "<group>"; };
+		8D50D3102BEF685800E8AC01 /* GitLabConfigs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitLabConfigs.swift; sourceTree = "<group>"; };
 		D207F0DC2272BBA4000EB2B4 /* Avatar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Avatar.swift; sourceTree = "<group>"; };
 		D207F0DF2272BE06000EB2B4 /* GerritResponseUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GerritResponseUtils.swift; sourceTree = "<group>"; };
 		D2350ADF2180616A0002A17D /* GerritJarvis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GerritJarvis.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -129,6 +133,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		8D50D30D2BEF66FA00E8AC01 /* GitLab */ = {
+			isa = PBXGroup;
+			children = (
+				8D50D30E2BEF670600E8AC01 /* GitLabService.swift */,
+				8D50D3102BEF685800E8AC01 /* GitLabConfigs.swift */,
+			);
+			path = GitLab;
+			sourceTree = "<group>";
+		};
 		D207F0DE2272BDD7000EB2B4 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -166,6 +179,7 @@
 				D291E325228B34610033614B /* Foundation */,
 				D2885986220B125F003495BC /* Gerrit */,
 				D2350AE22180616A0002A17D /* AppDelegate.swift */,
+				8D50D30D2BEF66FA00E8AC01 /* GitLab */,
 				D2350AE62180616B0002A17D /* Assets.xcassets */,
 				D2350AE82180616B0002A17D /* Main.storyboard */,
 				D2350AEB2180616B0002A17D /* Info.plist */,
@@ -490,11 +504,13 @@
 				D26AC9A62272E96900D65397 /* ReviewListViewController.swift in Sources */,
 				D291E3072287FEB90033614B /* ReviewListDataController.swift in Sources */,
 				D291E3052287FB810033614B /* ConfigManager.swift in Sources */,
+				8D50D30F2BEF670600E8AC01 /* GitLabService.swift in Sources */,
 				D291E2F9228582060033614B /* ReviewListCellViewModel.swift in Sources */,
 				D2350AE32180616A0002A17D /* AppDelegate.swift in Sources */,
 				D288598E220BE3C1003495BC /* Message.swift in Sources */,
 				8D50D3092BEF4C5700E8AC01 /* GitlabAccountSettingView.swift in Sources */,
 				D2BBB38222998E0D00288865 /* PasteTextView.swift in Sources */,
+				8D50D3112BEF685800E8AC01 /* GitLabConfigs.swift in Sources */,
 				D207F0DD2272BBA5000EB2B4 /* Avatar.swift in Sources */,
 				D288598D220BE3C1003495BC /* Author.swift in Sources */,
 				D288598C220BE3C1003495BC /* Change.swift in Sources */,
@@ -656,11 +672,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = GerritJarvis/GerritJarvis.entitlements;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = MCX2762Y49;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Vendors",
@@ -683,11 +701,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = GerritJarvis/GerritJarvis.entitlements;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = MCX2762Y49;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Vendors",
