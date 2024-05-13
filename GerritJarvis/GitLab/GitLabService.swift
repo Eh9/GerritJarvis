@@ -25,9 +25,10 @@ class GitlabService {
             $0.token = GitLabConfigs.token
         })
         Task {
-            let groups = await fetchGroupInfo()
-            print("test", groups)
-            GitLabConfigs.shared.groups.append(contentsOf: groups)
+            GitLabConfigs.groupInfo.groups = await fetchGroupInfo()
+            GitLabConfigs.userInfo = await fetchUserInfo()
+            GitLabConfigs.hasSetup = GitLabConfigs.userInfo != nil
+            GitLabConfigs.setupGroupInfo()
         }
     }
 

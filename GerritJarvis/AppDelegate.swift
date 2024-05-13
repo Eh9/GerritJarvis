@@ -37,7 +37,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 title: "GitLabAccount",
                 toolbarIcon: NSImage(named: NSImage.advancedName)!
             ) {
-                GitLabAccountSettingView()
+                GitLabAccountSettingView().environment(GitLabConfigs.groupInfo)
             },
             BlackListPreferenceViewController(),
         ]
@@ -57,12 +57,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             object: nil
         )
 
-        if ConfigManager.shared.hasUser(),
-           let baseUrl = ConfigManager.shared.baseUrl,
-           let user = ConfigManager.shared.user,
-           let password = ConfigManager.shared.password
-        {
-            reviewListDataController.changeAccount(baseUrl: baseUrl, user: user, password: password)
+        if ConfigManager.shared.hasUser() {
+            reviewListDataController.setupAccount()
         }
     }
 

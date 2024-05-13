@@ -9,7 +9,7 @@
 import Cocoa
 
 class ConfigManager {
-     // 单位为分钟，值必须在 General Preference 的 frequency 选择列表中
+    // 单位为分钟，值必须在 General Preference 的 frequency 选择列表中
     static let DefaultRefreshFrequency: TimeInterval = 3
     static let AccountUpdatedNotification = Notification.Name("AccountUpdatedNotification")
     static let RefreshFrequencyUpdatedNotification = Notification.Name("RefreshFrequencyUpdatedNotification")
@@ -51,9 +51,11 @@ class ConfigManager {
                 return
             }
             UserDefaults.standard.set(newValue, forKey: ConfigManager.RefreshFrequencyKey)
-            NotificationCenter.default.post(name: ConfigManager.RefreshFrequencyUpdatedNotification,
-                                            object: nil,
-                                            userInfo: [ConfigManager.RefreshFrequencyKey:  newValue])
+            NotificationCenter.default.post(
+                name: ConfigManager.RefreshFrequencyUpdatedNotification,
+                object: nil,
+                userInfo: [ConfigManager.RefreshFrequencyKey: newValue]
+            )
         }
     }
 
@@ -109,13 +111,20 @@ class ConfigManager {
     }
 
     func hasUser() -> Bool {
+        hasGerritUser || hasGitLabUser
+    }
+
+    var hasGerritUser: Bool {
         if let url = baseUrl, let user = user, let password = password, let accountId = accountId,
-            accountId != 0 && !url.isEmpty && !user.isEmpty && !password.isEmpty {
+           accountId != 0, !url.isEmpty, !user.isEmpty, !password.isEmpty
+        {
             return true
         } else {
             return false
         }
     }
+
+    var hasGitLabUser: Bool { GitLabConfigs.hasSetup }
 
     func update(baseUrl: String, user: String, password: String, accountId: Int) {
         UserDefaults.standard.set(baseUrl, forKey: ConfigManager.BaseUrlKey)
@@ -126,11 +135,15 @@ class ConfigManager {
         self.password = password
         UserDefaults.standard.set(accountId, forKey: ConfigManager.AccountIdKey)
         self.accountId = accountId
-        NotificationCenter.default.post(name: ConfigManager.AccountUpdatedNotification,
-                                        object: nil,
-                                        userInfo: [ConfigManager.UserKey: user,
-                                                   ConfigManager.PasswordKey: password,
-                                                   ConfigManager.BaseUrlKey: baseUrl])
+        NotificationCenter.default.post(
+            name: ConfigManager.AccountUpdatedNotification,
+            object: nil,
+            userInfo: [
+                ConfigManager.UserKey: user,
+                ConfigManager.PasswordKey: password,
+                ConfigManager.BaseUrlKey: baseUrl
+            ]
+        )
     }
 
     func appendBlacklist(type: String, value: String) {
@@ -139,7 +152,7 @@ class ConfigManager {
     }
 
     func removeBlacklist(at index: Int) {
-        guard index >= 0 && index < blacklist.count else {
+        guard index >= 0, index < blacklist.count else {
             return
         }
         blacklist.remove(at: index)
@@ -163,10 +176,9 @@ class ConfigManager {
     }
 
     private func saveBlacklist() {
-        let list = blacklist.map { (t, v) in
+        let list = blacklist.map { t, v in
             return t + "," + v
         }
         UserDefaults.standard.set(list, forKey: ConfigManager.BlacklistKey)
     }
-
 }

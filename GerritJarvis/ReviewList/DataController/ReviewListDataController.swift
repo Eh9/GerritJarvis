@@ -9,7 +9,6 @@
 import Cocoa
 
 class ReviewListDataController: NSObject {
-
     static let ReviewListUpdatedNotification = Notification.Name("ReviewListUpdatedNotification")
     static let ReviewListNewEventsNotification = Notification.Name("ReviewListNewEventsNotification")
     static let ReviewListNewEventsKey = "ReviewListNewEventsKey"
@@ -24,12 +23,13 @@ class ReviewListDataController: NSObject {
     @objc dynamic var isFetchingList: Bool = false
 
     private var gerritService: GerritService?
+    private var gitlabService: GitlabService = .shared
     private var timer: Timer?
     private var isFirstLoading: Bool = false
-    private var newEventStates: [String : Bool] {
-        get  {
-            guard let status = UserDefaults.standard.object(forKey: ReviewNewEventStatusKey) as? [String : Bool] else {
-                return [String : Bool]()
+    private var newEventStates: [String: Bool] {
+        get {
+            guard let status = UserDefaults.standard.object(forKey: ReviewNewEventStatusKey) as? [String: Bool] else {
+                return [String: Bool]()
             }
             return status
         }
@@ -37,10 +37,11 @@ class ReviewListDataController: NSObject {
             UserDefaults.standard.set(newValue, forKey: ReviewNewEventStatusKey)
         }
     }
-    private var newComments: [String : Int] {
-        get  {
-            guard let comments = UserDefaults.standard.object(forKey: ReviewNewCommentsKey) as? [String : Int] else {
-                return [String : Int]()
+
+    private var newComments: [String: Int] {
+        get {
+            guard let comments = UserDefaults.standard.object(forKey: ReviewNewCommentsKey) as? [String: Int] else {
+                return [String: Int]()
             }
             return comments
         }
@@ -49,10 +50,11 @@ class ReviewListDataController: NSObject {
         }
     }
 
-    private var latestMessageIds: [String : String] {
-        get  {
-            guard let messageIds = UserDefaults.standard.object(forKey: ReviewLastestMessageIdKey) as? [String : String] else {
-                return [String : String]()
+    private var latestMessageIds: [String: String] {
+        get {
+            guard let messageIds = UserDefaults.standard.object(forKey: ReviewLastestMessageIdKey) as? [String: String]
+            else {
+                return [String: String]()
             }
             return messageIds
         }
@@ -68,22 +70,30 @@ class ReviewListDataController: NSObject {
             self,
             selector: #selector(handleAccountUpdated(notification:)),
             name: ConfigManager.AccountUpdatedNotification,
-            object: nil)
+            object: nil
+        )
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleRefreshFrequencyUpdated(notification:)),
             name: ConfigManager.RefreshFrequencyUpdatedNotification,
-            object: nil)
+            object: nil
+        )
     }
 
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
 
-    func changeAccount(baseUrl: String, user: String, password: String) {
+    func setupAccount() {
         stopTimer()
         isFirstLoading = true
-        gerritService = GerritService(user: user, password: password, baseUrl: baseUrl)
+        if let user = ConfigManager.shared.user,
+           let password = ConfigManager.shared.password,
+           let baseUrl = ConfigManager.shared.baseUrl
+        {
+            gerritService = GerritService(user: user, password: password, baseUrl: baseUrl)
+        }
+        gitlabService.setup()
         startTimer()
     }
 
@@ -117,11 +127,12 @@ class ReviewListDataController: NSObject {
         saveNewComments()
         saveLatestMessageIds()
 
-        let userInfo = [ ReviewListDataController.ReviewListNewEventsKey: newEvents ]
-        NotificationCenter.default.post(name: ReviewListDataController.ReviewListNewEventsNotification,
-                                        object: nil,
-                                        userInfo: userInfo)
-
+        let userInfo = [ReviewListDataController.ReviewListNewEventsKey: newEvents]
+        NotificationCenter.default.post(
+            name: ReviewListDataController.ReviewListNewEventsNotification,
+            object: nil,
+            userInfo: userInfo
+        )
     }
 
     func clearAllNewEvents() {
@@ -135,7 +146,7 @@ class ReviewListDataController: NSObject {
         guard let changes = changes else {
             return nil
         }
-        var target: Change? = nil
+        var target: Change?
         for change in changes {
             if let number = change.number, number == changeNumber {
                 target = change
@@ -146,24 +157,18 @@ class ReviewListDataController: NSObject {
     }
 
     @objc func handleAccountUpdated(notification: Notification) {
-        guard let user = notification.userInfo?[ConfigManager.UserKey] as? String,
-            let password = notification.userInfo?[ConfigManager.PasswordKey] as? String,
-            let baseUrl = notification.userInfo?[ConfigManager.BaseUrlKey] as? String else {
-            return
-        }
-        changeAccount(baseUrl: baseUrl, user: user, password: password)
+        setupAccount()
     }
 
     @objc func handleRefreshFrequencyUpdated(notification: Notification) {
         stopTimer()
         startTimer()
     }
-
 }
 
 // MARK: - Refresh Timer
-extension ReviewListDataController {
 
+extension ReviewListDataController {
     private func startTimer() {
         if timer != nil {
             return
@@ -179,16 +184,15 @@ extension ReviewListDataController {
         timer?.invalidate()
         timer = nil
     }
-
 }
 
 // MARK: - Update Changes
-extension ReviewListDataController {
 
+extension ReviewListDataController {
     private func updateChanges(_ newChanges: [Change]) {
         var viewModels = [ReviewListCellViewModel]()
         for change in newChanges {
-            var originChange: Change? = nil
+            var originChange: Change?
             guard let newId = change.id else {
                 continue
             }
@@ -218,9 +222,13 @@ extension ReviewListDataController {
             let originRevision = originChange?.messages?.last?.revisionNumber ?? 1
             let comments = GerritUtils.parseNewCommentCounts(messages, originRevision: originRevision)
             if change.shouldListenReviewEvent() {
-                viewModel.newComments = GerritUtils.calculateNewCommentCount(originCount: commentCounts, comments: comments, authorFilter: { author in
-                    return change.shouldListen(author: author)
-                })
+                viewModel.newComments = GerritUtils.calculateNewCommentCount(
+                    originCount: commentCounts,
+                    comments: comments,
+                    authorFilter: { author in
+                        return change.shouldListen(author: author)
+                    }
+                )
             }
 
             var raiseMergeConflict = false
@@ -252,12 +260,14 @@ extension ReviewListDataController {
                 let filterComments = GerritUtils.filterComments(comments, authorFilter: { author in
                     return change.shouldListen(author: author)
                 })
-                notifyReviewEvents(scores: scores,
-                                   comments: filterComments,
-                                   change: change)
+                notifyReviewEvents(
+                    scores: scores,
+                    comments: filterComments,
+                    change: change
+                )
             }
 
-            if viewModel.isOurNotReady && !ConfigManager.shared.showOurNotReadyReview {
+            if viewModel.isOurNotReady, !ConfigManager.shared.showOurNotReadyReview {
                 continue
             }
             if change.isInBlacklist() {
@@ -287,7 +297,7 @@ extension ReviewListDataController {
     }
 
     private func saveNewEventStates() {
-        var states = [String : Bool]()
+        var states = [String: Bool]()
         for vm in cellViewModels {
             states[vm.newEventKey] = vm.hasNewEvent
         }
@@ -295,7 +305,7 @@ extension ReviewListDataController {
     }
 
     private func saveNewComments() {
-        var comments = [String : Int]()
+        var comments = [String: Int]()
         for vm in cellViewModels {
             comments[vm.changeNumberKey] = vm.hasNewEvent ? vm.newComments : 0
         }
@@ -303,7 +313,7 @@ extension ReviewListDataController {
     }
 
     private func saveLatestMessageIds() {
-        var messageIds = [String : String]()
+        var messageIds = [String: String]()
         for vm in cellViewModels {
             guard let messageId = vm.latestMessageId else {
                 continue
@@ -314,23 +324,25 @@ extension ReviewListDataController {
     }
 
     private func sendReviewListUpdatedNotification() {
-        NotificationCenter.default.post(name: ReviewListDataController.ReviewListUpdatedNotification,
-                                        object: nil,
-                                        userInfo: nil)
+        NotificationCenter.default.post(
+            name: ReviewListDataController.ReviewListUpdatedNotification,
+            object: nil,
+            userInfo: nil
+        )
     }
-
 }
 
 // MARK: - Local Notification
-extension ReviewListDataController : NSUserNotificationCenterDelegate {
 
+extension ReviewListDataController: NSUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: NSUserNotificationCenter, didActivate notification: NSUserNotification) {
         guard let userInfo = notification.userInfo,
-            let number = userInfo[ReviewListDataController.ReviewChangeNumberKey] as? Int else {
+              let number = userInfo[ReviewListDataController.ReviewChangeNumberKey] as? Int
+        else {
             return
         }
 
-        var target: ReviewListCellViewModel? = nil
+        var target: ReviewListCellViewModel?
         for vm in cellViewModels {
             guard let changeNumber = vm.changeNumber else {
                 continue
@@ -348,9 +360,11 @@ extension ReviewListDataController : NSUserNotificationCenterDelegate {
         GerritUtils.openGerrit(number: number, revisionRange: revisionRange(of: number))
     }
 
-    private func notifyReviewEvents(scores: [(Author, ReviewScore)],
-                                    comments: [(Author, Int)],
-                                    change: Change) {
+    private func notifyReviewEvents(
+        scores: [(Author, ReviewScore)],
+        comments: [(Author, Int)],
+        change: Change
+    ) {
         let reviewEvents = GerritUtils.combineReviewEvents(scores: scores, comments: comments)
         for (author, score, comments) in reviewEvents {
             if author.isMe() || author.isInBlackList() || (score == .Zero && comments == 0) {
@@ -371,7 +385,7 @@ extension ReviewListDataController : NSUserNotificationCenterDelegate {
                     title += "Comments)"
                 }
             }
-            postLocationNotification(title: title, image: NSImage.init(named: imageName), change: change)
+            postLocationNotification(title: title, image: NSImage(named: imageName), change: change)
         }
     }
 
@@ -379,19 +393,23 @@ extension ReviewListDataController : NSUserNotificationCenterDelegate {
         guard ConfigManager.shared.shouldNotifyMergeConflict else {
             return
         }
-        postLocationNotification(title: "Merge Conflict",
-                                 image: NSImage.init(named: "Conflict"),
-                                 change: change)
+        postLocationNotification(
+            title: "Merge Conflict",
+            image: NSImage(named: "Conflict"),
+            change: change
+        )
     }
 
     private func notifyNewChange(_ change: Change) {
-        guard ConfigManager.shared.shouldNotifyNewIncomingReview && change.hasNewEvent() else {
+        guard ConfigManager.shared.shouldNotifyNewIncomingReview, change.hasNewEvent() else {
             return
         }
         let name = change.owner?.name ?? ""
-        postLocationNotification(title: "New Review by \(name)",
+        postLocationNotification(
+            title: "New Review by \(name)",
             image: change.owner?.avatarImage(),
-            change: change)
+            change: change
+        )
     }
 
     private func postLocationNotification(title: String, image: NSImage?, change: Change) {
@@ -407,17 +425,16 @@ extension ReviewListDataController : NSUserNotificationCenterDelegate {
         notification.informativeText = change.subject
         notification.contentImage = image
         if let number = change.number {
-            notification.userInfo = [ ReviewListDataController.ReviewChangeNumberKey: number ]
+            notification.userInfo = [ReviewListDataController.ReviewChangeNumberKey: number]
         }
         debugPrint(notification)
         NSUserNotificationCenter.default.deliver(notification)
     }
-
 }
 
 // MARK: - Merged
-extension ReviewListDataController {
 
+extension ReviewListDataController {
     private func checkMerged(_ newChanges: [Change]) {
         guard let changes = changes else {
             return
@@ -438,8 +455,9 @@ extension ReviewListDataController {
 
         for change in leaveChanges {
             let hasTrigger = MergedTriggerManager.shared.hasTrigger(change: change)
-            guard (change.isOurs() || hasTrigger),
-                let changeId = change.changeId else {
+            guard change.isOurs() || hasTrigger,
+                  let changeId = change.changeId
+            else {
                 continue
             }
             gerritService?.fetchChangeDetail(changeId: changeId, completion: { change in
@@ -448,9 +466,10 @@ extension ReviewListDataController {
                 }
                 var title = ""
                 if change.isOurs(),
-                    let name = change.owner?.name,
-                    let mergedName = change.mergedBy(),
-                    name != mergedName {
+                   let name = change.owner?.name,
+                   let mergedName = change.mergedBy(),
+                   name != mergedName
+                {
                     title += NSLocalizedString("ReviewMerged", comment: "")
                 }
                 if hasTrigger {
@@ -463,11 +482,12 @@ extension ReviewListDataController {
                 if title.isEmpty {
                     return
                 }
-                self.postLocationNotification(title: title,
-                                              image: NSImage.init(named: "Merged"),
-                                              change: change)
+                self.postLocationNotification(
+                    title: title,
+                    image: NSImage(named: "Merged"),
+                    change: change
+                )
             })
         }
     }
-
 }
