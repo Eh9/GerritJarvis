@@ -12,10 +12,10 @@
 		8D50D2F12BEE047700E8AC01 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D2F02BEE047700E8AC01 /* SnapKit */; };
 		8D50D2F42BEE050500E8AC01 /* Settings in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D2F32BEE050500E8AC01 /* Settings */; };
 		8D50D2FE2BEE074100E8AC01 /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D2FD2BEE074100E8AC01 /* LaunchAtLogin */; };
-		8D50D3012BEE2A2900E8AC01 /* GitLabSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D3002BEE2A2900E8AC01 /* GitLabSwift */; };
 		8D50D3092BEF4C5700E8AC01 /* GitlabAccountSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D50D3082BEF4C5700E8AC01 /* GitlabAccountSettingView.swift */; };
 		8D50D30F2BEF670600E8AC01 /* GitLabService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D50D30E2BEF670600E8AC01 /* GitLabService.swift */; };
 		8D50D3112BEF685800E8AC01 /* GitLabConfigs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D50D3102BEF685800E8AC01 /* GitLabConfigs.swift */; };
+		8D50D3142BF3855200E8AC01 /* GitLabSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D3132BF3855200E8AC01 /* GitLabSwift */; };
 		D207F0DD2272BBA5000EB2B4 /* Avatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D207F0DC2272BBA4000EB2B4 /* Avatar.swift */; };
 		D207F0E02272BE06000EB2B4 /* GerritResponseUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = D207F0DF2272BE06000EB2B4 /* GerritResponseUtils.swift */; };
 		D2350AE32180616A0002A17D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2350AE22180616A0002A17D /* AppDelegate.swift */; };
@@ -119,7 +119,7 @@
 				8D50D2F42BEE050500E8AC01 /* Settings in Frameworks */,
 				8D50D2FE2BEE074100E8AC01 /* LaunchAtLogin in Frameworks */,
 				8D50D2F12BEE047700E8AC01 /* SnapKit in Frameworks */,
-				8D50D3012BEE2A2900E8AC01 /* GitLabSwift in Frameworks */,
+				8D50D3142BF3855200E8AC01 /* GitLabSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -410,7 +410,7 @@
 				8D50D2F02BEE047700E8AC01 /* SnapKit */,
 				8D50D2F32BEE050500E8AC01 /* Settings */,
 				8D50D2FD2BEE074100E8AC01 /* LaunchAtLogin */,
-				8D50D3002BEE2A2900E8AC01 /* GitLabSwift */,
+				8D50D3132BF3855200E8AC01 /* GitLabSwift */,
 			);
 			productName = GerritJarvis;
 			productReference = D2350ADF2180616A0002A17D /* GerritJarvis.app */;
@@ -453,7 +453,7 @@
 				8D50D2EF2BEE047700E8AC01 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				8D50D2F22BEE050500E8AC01 /* XCRemoteSwiftPackageReference "Settings" */,
 				8D50D2FC2BEE074100E8AC01 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */,
-				8D50D2FF2BEE2A2900E8AC01 /* XCRemoteSwiftPackageReference "GitLabSwift" */,
+				8D50D3122BF3855200E8AC01 /* XCRemoteSwiftPackageReference "GitLabSwift" */,
 			);
 			productRefGroup = D2350AE02180616A0002A17D /* Products */;
 			projectDirPath = "";
@@ -790,12 +790,12 @@
 				kind = branch;
 			};
 		};
-		8D50D2FF2BEE2A2900E8AC01 /* XCRemoteSwiftPackageReference "GitLabSwift" */ = {
+		8D50D3122BF3855200E8AC01 /* XCRemoteSwiftPackageReference "GitLabSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/malcommac/GitLabSwift";
+			repositoryURL = "https://github.com/Eh9/GitLabSwift";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.9.1;
+				branch = main;
+				kind = branch;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -826,9 +826,9 @@
 			package = 8D50D2FC2BEE074100E8AC01 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */;
 			productName = LaunchAtLogin;
 		};
-		8D50D3002BEE2A2900E8AC01 /* GitLabSwift */ = {
+		8D50D3132BF3855200E8AC01 /* GitLabSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 8D50D2FF2BEE2A2900E8AC01 /* XCRemoteSwiftPackageReference "GitLabSwift" */;
+			package = 8D50D3122BF3855200E8AC01 /* XCRemoteSwiftPackageReference "GitLabSwift" */;
 			productName = GitLabSwift;
 		};
 /* End XCSwiftPackageProductDependency section */

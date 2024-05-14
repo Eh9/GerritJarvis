@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import GitLabSwift
 
 class ReviewListCellViewModel: NSObject {
     let changeNumber: Int?
@@ -45,11 +46,29 @@ class ReviewListCellViewModel: NSObject {
         if change.isOurs() {
             // 自己提的 Review 被自己 -2，说明还没准备好
             if let author = author,
-                score == .MinusTwo && author.isMe() {
+               score == .MinusTwo, author.isMe()
+            {
                 isOurNotReady = true
             }
         }
 
+        super.init()
+    }
+
+    init(mr: GLModel.MergeRequest) {
+        changeNumber = mr.iid
+        newEventKey = "test"
+        changeNumberKey = "test"
+        latestMessageId = String(mr.user_notes_count)
+        project = mr.source_branch ?? ""
+        branch = mr.source_branch ?? ""
+        name = mr.author?.name ?? ""
+        // TODO: use sd to prevent main thread load image
+        avatar = NSImage(byReferencing: .init(string: mr.author?.avatar_url ?? "")!)
+        commitMessage = mr.title ?? ""
+        hasNewEvent = false
+        isMergeConflict = mr.merge_status == "cannot_be_merged"
+        reviewScore = .Zero
         super.init()
     }
 

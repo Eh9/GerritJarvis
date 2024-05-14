@@ -10,14 +10,16 @@ import Cocoa
 import SnapKit
 
 class ReviewListViewController: NSViewController {
-    
     @IBOutlet var settingMenu: NSMenu!
-    @IBOutlet weak var indicator: NSProgressIndicator!
-    @IBOutlet weak var refreshButton: NSButton!
-    @IBOutlet weak var clearButton: NSButton!
-    @IBOutlet weak var tableView: NSTableView! {
+    @IBOutlet var indicator: NSProgressIndicator!
+    @IBOutlet var refreshButton: NSButton!
+    @IBOutlet var clearButton: NSButton!
+    @IBOutlet var tableView: NSTableView! {
         didSet {
-            self.tableView.register(NSNib(nibNamed: "ReviewListCell", bundle: nil), forIdentifier: NSUserInterfaceItemIdentifier(rawValue: "ReviewListCell"))
+            self.tableView.register(
+                NSNib(nibNamed: "ReviewListCell", bundle: nil),
+                forIdentifier: NSUserInterfaceItemIdentifier(rawValue: "ReviewListCell")
+            )
         }
     }
 
@@ -54,18 +56,18 @@ class ReviewListViewController: NSViewController {
         if !ConfigManager.shared.hasUser() {
             emptyView.isHidden = false
             emptyView.titleLabel.stringValue = NSLocalizedString("ConfigGerritUser", comment: "")
-            emptyView.imageView.image = NSImage.init(named: "EmptyUser")
+            emptyView.imageView.image = NSImage(named: "EmptyUser")
             emptyView.preferenceButton.isHidden = false
             clearButton.isEnabled = false
             refreshButton.isEnabled = false
         } else if dataController.cellViewModels.count == 0 {
             emptyView.isHidden = false
-            if !dataController.isFetchingList && dataController.changes == nil {
+            if !dataController.isFetchingList, dataController.changes == nil {
                 emptyView.titleLabel.stringValue = NSLocalizedString("FetchListFailed", comment: "")
-                emptyView.imageView.image = NSImage.init(named: "EmptyReview")
+                emptyView.imageView.image = NSImage(named: "EmptyReview")
             } else {
                 emptyView.titleLabel.stringValue = NSLocalizedString("NoReview", comment: "")
-                emptyView.imageView.image = NSImage.init(named: "EmptyReview")
+                emptyView.imageView.image = NSImage(named: "EmptyReview")
             }
             emptyView.preferenceButton.isHidden = true
             clearButton.isEnabled = false
@@ -105,22 +107,22 @@ class ReviewListViewController: NSViewController {
     @IBAction func quitItemClicked(_ sender: NSMenuItem) {
         NSApplication.shared.terminate(self)
     }
-
 }
 
 extension ReviewListViewController {
-
     private func regiseterNotifications() {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(tableViewSelectionDidChange(notification:)),
             name: NSTableView.selectionDidChangeNotification,
-            object: nil)
+            object: nil
+        )
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(reviewListDidChange(notification:)),
             name: ReviewListDataController.ReviewListUpdatedNotification,
-            object: nil)
+            object: nil
+        )
     }
 
     private func unregisterNotifications() {
@@ -154,27 +156,26 @@ extension ReviewListViewController {
     @objc func reviewListDidChange(notification: NSNotification) {
         renderContentView()
     }
-
 }
 
 extension ReviewListViewController: NSTableViewDataSource {
-
     func numberOfRows(in tableView: NSTableView) -> Int {
         return dataController.cellViewModels.count
     }
 
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
-        let cell = tableView.makeView(withIdentifier: NSUserInterfaceItemIdentifier(rawValue: "ReviewListCell"), owner: self) as! ReviewListCell
+        let cell = tableView.makeView(
+            withIdentifier: NSUserInterfaceItemIdentifier(rawValue: "ReviewListCell"),
+            owner: self
+        ) as! ReviewListCell
         let vm = dataController.cellViewModels[row]
         cell.bindData(with: vm)
         cell.delegate = self
         return cell
     }
-
 }
 
-extension ReviewListViewController: NSTableViewDelegate {
-}
+extension ReviewListViewController: NSTableViewDelegate {}
 
 extension ReviewListViewController: ReviewListCellDelegate {
     func reviewListCellDidClickTriggerButton(_ cell: ReviewListCell) {
@@ -213,26 +214,26 @@ extension ReviewListViewController: ReviewListCellDelegate {
     private func reviewChange(for cell: ReviewListCell) -> Change? {
         let row = tableView.row(for: cell)
         // 注意，changes 和 cellViewModels 并不是一一对应的
-        guard row >= 0 && row < dataController.cellViewModels.count,
-            let changes = dataController.changes,
-            let number = dataController.cellViewModels[row].changeNumber else {
+        guard row >= 0, row < dataController.cellViewModels.count,
+              let changes = dataController.changes,
+              let number = dataController.cellViewModels[row].changeNumber
+        else {
             return nil
         }
-
-        for change in changes {
-            if change.number == number {
-                return change
-            }
-        }
-        return nil
+        return changes.first { $0.number == number }
     }
 }
 
 extension ReviewListViewController {
-
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+    override func observeValue(
+        forKeyPath keyPath: String?,
+        of object: Any?,
+        change: [NSKeyValueChangeKey: Any]?,
+        context: UnsafeMutableRawPointer?
+    ) {
         guard keyPath == "isFetchingList",
-            let isRefreshing = change?[.newKey] as? Bool else {
+              let isRefreshing = change?[.newKey] as? Bool
+        else {
             return
         }
         if isRefreshing {
@@ -245,20 +246,20 @@ extension ReviewListViewController {
             refreshButton.isEnabled = true
         }
     }
-
 }
 
 extension ReviewListViewController {
-
     // MARK: Storyboard instantiation
+
     static func freshController(dataController: ReviewListDataController) -> ReviewListViewController {
         let storyboard = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
         let identifier = NSStoryboard.SceneIdentifier("ReviewListViewController")
-        guard let viewController = storyboard.instantiateController(withIdentifier: identifier) as? ReviewListViewController else {
+        guard let viewController = storyboard
+            .instantiateController(withIdentifier: identifier) as? ReviewListViewController
+        else {
             fatalError("Why cant i find ReviewListViewController? - Check Main.storyboard")
         }
         viewController.dataController = dataController
         return viewController
     }
-
 }

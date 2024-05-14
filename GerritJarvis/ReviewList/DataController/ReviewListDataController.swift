@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import GitLabSwift
 
 class ReviewListDataController: NSObject {
     static let ReviewListUpdatedNotification = Notification.Name("ReviewListUpdatedNotification")
@@ -20,6 +21,7 @@ class ReviewListDataController: NSObject {
 
     private(set) var cellViewModels = [ReviewListCellViewModel]()
     private(set) var changes: [Change]?
+    private(set) var mrs: [GLModel.MergeRequest] = []
     @objc dynamic var isFetchingList: Bool = false
 
     private var gerritService: GerritService?
@@ -102,14 +104,26 @@ class ReviewListDataController: NSObject {
             return
         }
         isFetchingList = true
+        let dispathGroup = DispatchGroup()
+        dispathGroup.enter()
+        var newChanges: [Change] = []
         gerritService?.fetchReviewList { changes in
-            self.isFetchingList = false
+            defer { dispathGroup.leave() }
             guard let changes = changes else {
                 return
             }
-            let newChanges = self.reorderChanges(changes)
+            newChanges = self.reorderChanges(changes)
             self.checkMerged(newChanges)
+        }
+        dispathGroup.enter()
+        Task {
+            defer { dispathGroup.leave() }
+            self.mrs = await gitlabService.fetchMRs()
+            print(self.mrs)
+        }
+        dispathGroup.notify(queue: .main) {
             self.updateChanges(newChanges)
+            self.updateGitlabMRs()
             self.updateAllNewEventsCount()
             self.sendReviewListUpdatedNotification()
             self.isFirstLoading = false
@@ -275,8 +289,16 @@ extension ReviewListDataController {
             }
             viewModels.append(viewModel)
         }
-        changes = newChanges
+        self.changes = newChanges
         cellViewModels = viewModels
+    }
+
+    private func updateGitlabMRs() {
+        let gitLabCellModels = mrs.map {
+            let viewModel = ReviewListCellViewModel(mr: $0)
+            return viewModel
+        }
+        cellViewModels.append(contentsOf: gitLabCellModels)
     }
 
     private func reorderChanges(_ changes: [Change]) -> [Change] {
