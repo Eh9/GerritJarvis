@@ -1,5 +1,5 @@
 {
-  "originHash" : "f7f7451cae262055fa9b13779a1ca81c04f5272f36d21b2a625a34437f471b5d",
+  "originHash" : "6229b56ccce2ffe63368a56b5f82b43a8065419605e0475d99d0836c3fb1ce69",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -8,15 +8,6 @@
       "state" : {
         "revision" : "f455c2975872ccd2d9c81594c658af65716e9b9a",
         "version" : "5.9.1"
-      }
-    },
-    {
-      "identity" : "gitlabswift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Eh9/GitLabSwift",
-      "state" : {
-        "branch" : "main",
-        "revision" : "e2fcab09fe13e71d5fa67376754117d3dcd6a4fb"
       }
     },
     {
@@ -53,6 +44,24 @@
       "state" : {
         "branch" : "fix/query-param-encoding",
         "revision" : "78ddd39196f30771ac97f9f4f35422311f74a654"
+      }
+    },
+    {
+      "identity" : "sdwebimage",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/SDWebImage.git",
+      "state" : {
+        "revision" : "5642d1ffe3dbe628592443bd14154e31929727b4",
+        "version" : "5.19.2"
+      }
+    },
+    {
+      "identity" : "sdwebimageswiftui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/SDWebImageSwiftUI",
+      "state" : {
+        "revision" : "b7af5e6bd9c2987e41730400d1baad13d74a141a",
+        "version" : "3.0.4"
       }
     },
     {

@@ -8,6 +8,7 @@
 
 import Cocoa
 import GitLabSwift
+import SDWebImage
 
 class ReviewListCellViewModel: NSObject {
     let changeNumber: Int?
@@ -18,7 +19,8 @@ class ReviewListCellViewModel: NSObject {
     let branch: String
     let name: String
     let commitMessage: String
-    let avatar: NSImage?
+    var avatar: NSImage?
+    var avatarUrl: String?
     var newComments: Int = 0
     var reviewScore: ReviewScore = .Zero
     var hasNewEvent: Bool = false
@@ -55,20 +57,23 @@ class ReviewListCellViewModel: NSObject {
         super.init()
     }
 
-    init(mr: GLModel.MergeRequest) {
+    init(mr: GLModel.MergeRequest, project: GLModel.Project?) {
         changeNumber = mr.iid
         newEventKey = "test"
         changeNumberKey = "test"
         latestMessageId = String(mr.user_notes_count)
-        project = mr.source_branch ?? ""
-        branch = mr.source_branch ?? ""
-        name = mr.author?.name ?? ""
-        // TODO: use sd to prevent main thread load image
-        avatar = NSImage(byReferencing: .init(string: mr.author?.avatar_url ?? "")!)
-        commitMessage = mr.title ?? ""
+        self.project = project?.name ?? "null_project"
+        branch = mr.source_branch ?? "null_branch"
+        name = mr.author?.name ?? "null_name"
+        avatarUrl = mr.author?.avatar_url
+        commitMessage = mr.title ?? "null_title"
         hasNewEvent = false
-        isMergeConflict = mr.merge_status == "cannot_be_merged"
-        reviewScore = .Zero
+        isMergeConflict = mr.has_conflicts == true
+        reviewScore = switch mr.upvotes {
+        case 1: .PlusOne
+        case 2...: .PlusTwo
+        default: .Zero
+        }
         super.init()
     }
 

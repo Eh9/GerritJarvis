@@ -62,7 +62,7 @@ enum GitLabConfigs {
     @UserDefaultsValue(key: "gitlab_observed_groups_\(GitLabConfigs.user)", defaultValue: [])
     static var observedGroups: Set<Int>
 
-    // observable
+    // ui observable
     static var groupInfo: ObservedGroupsInfo = .init()
     static func setupGroupInfo() {
         groupInfo.groups = groups
@@ -94,14 +94,8 @@ class ObservedGroupsInfo: Codable {
     }
 }
 
-extension GLModel.Group: Identifiable, Encodable {
-    enum GroupCodingKeys: CodingKey {
-        case id, full_name
-    }
-
-    public func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: GroupCodingKeys.self)
-        try container.encode(id, forKey: .id)
-        try container.encode(full_name, forKey: .full_name)
+extension GLModel.Group: Identifiable {
+    var fullName: String? {
+        full_name?.replacingOccurrences(of: " ", with: "")
     }
 }

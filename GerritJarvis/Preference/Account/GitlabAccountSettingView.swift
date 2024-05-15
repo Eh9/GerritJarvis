@@ -20,6 +20,7 @@ struct GitLabAccountSettingView: View {
     @State private var baseUrl: String = GitLabConfigs.baseUrl
 
     @State private var wrongInputAlert: Bool = false
+    @State private var loginErrorAlert: Bool = false
 
     @Environment(ObservedGroupsInfo.self) var groupInfo
 
@@ -36,19 +37,30 @@ struct GitLabAccountSettingView: View {
                 TextField("email", text: $email).frame(width: Metric.textFieldWidth)
             }
             HStack(alignment: .center) {
-                Text("Token")
+                Text("Access Token")
                 Spacer()
                 SecureField("token", text: $token).frame(width: Metric.textFieldWidth)
             }
+            HStack(alignment: .center) {
+                Spacer()
+                Text("GitLab -> Edit Profile -> Access Tokens -> Create Personal access token(read_api)")
+                    .font(.caption).foregroundStyle(.gray)
+                    .frame(width: Metric.textFieldWidth, alignment: .leading)
+            }.padding(.bottom)
             if groupInfo.hasLogin {
                 HStack {
-                    Text("notify groups")
+                    Text("Subscribed Groups")
                     Spacer()
                 }
                 List {
+                    HStack {
+                        Text("GroupName").font(.headline)
+                        Spacer()
+                        Text("subscribe").font(.headline)
+                    }
                     ForEach(groupInfo.groups) { group in
                         HStack {
-                            Text(group.full_name!)
+                            Text(group.fullName ?? String(group.id))
                             Spacer()
                             Toggle("", isOn: .init(get: {
                                 groupInfo.observedGroups.contains(group.id)
@@ -58,13 +70,16 @@ struct GitLabAccountSettingView: View {
                             })).toggleStyle(.switch)
                         }
                     }
-                }.frame(height: 100)
+                }.frame(height: 130)
             } else {
                 Button(action: { login() }, label: { Text("Login") }).keyboardShortcut(.return)
             }
         }
         .padding(.all, 18).frame(width: 370)
         .alert("?", isPresented: $wrongInputAlert) {
+            Button("确认", role: .cancel) {}
+        }
+        .alert("认证失败", isPresented: $loginErrorAlert) {
             Button("确认", role: .cancel) {}
         }
     }
@@ -78,7 +93,10 @@ struct GitLabAccountSettingView: View {
         GitLabConfigs.baseUrl = baseUrl
         GitLabConfigs.user = email
         GitLabConfigs.token = token
-        GitlabService.shared.setup()
+        Task {
+            await GitlabService.shared.setup()
+            if GitLabConfigs.userInfo == nil { loginErrorAlert = true }
+        }
     }
 }
 

@@ -21,7 +21,6 @@ class ReviewListDataController: NSObject {
 
     private(set) var cellViewModels = [ReviewListCellViewModel]()
     private(set) var changes: [Change]?
-    private(set) var mrs: [GLModel.MergeRequest] = []
     @objc dynamic var isFetchingList: Bool = false
 
     private var gerritService: GerritService?
@@ -95,7 +94,7 @@ class ReviewListDataController: NSObject {
         {
             gerritService = GerritService(user: user, password: password, baseUrl: baseUrl)
         }
-        gitlabService.setup()
+        Task { await gitlabService.setup() }
         startTimer()
     }
 
@@ -118,8 +117,7 @@ class ReviewListDataController: NSObject {
         dispathGroup.enter()
         Task {
             defer { dispathGroup.leave() }
-            self.mrs = await gitlabService.fetchMRs()
-            print(self.mrs)
+            await gitlabService.fetchMRs()
         }
         dispathGroup.notify(queue: .main) {
             self.updateChanges(newChanges)
@@ -127,6 +125,7 @@ class ReviewListDataController: NSObject {
             self.updateAllNewEventsCount()
             self.sendReviewListUpdatedNotification()
             self.isFirstLoading = false
+            self.isFetchingList = false
         }
     }
 
@@ -294,8 +293,8 @@ extension ReviewListDataController {
     }
 
     private func updateGitlabMRs() {
-        let gitLabCellModels = mrs.map {
-            let viewModel = ReviewListCellViewModel(mr: $0)
+        let gitLabCellModels = gitlabService.trackingMRs.map { mr in
+            let viewModel = ReviewListCellViewModel(mr: mr, project: gitlabService.projectInfos[mr.project_id])
             return viewModel
         }
         cellViewModels.append(contentsOf: gitLabCellModels)

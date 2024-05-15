@@ -16,21 +16,20 @@ protocol ReviewListCellDelegate: NSObjectProtocol {
 }
 
 class ReviewListCell: NSTableCellView {
-
     weak var delegate: ReviewListCellDelegate?
 
-    @IBOutlet weak var projectLabel: NSTextField!
-    @IBOutlet weak var branchLabel: NSTextField!
-    @IBOutlet weak var commitLabel: NSTextField!
+    @IBOutlet var projectLabel: NSTextField!
+    @IBOutlet var branchLabel: NSTextField!
+    @IBOutlet var commitLabel: NSTextField!
 
-    @IBOutlet weak var nameLabel: NSTextField!
-    @IBOutlet weak var avatarImageView: NSImageView!
+    @IBOutlet var nameLabel: NSTextField!
+    @IBOutlet var avatarImageView: NSImageView!
 
-    @IBOutlet weak var newReviewImageView: NSImageView!
-    @IBOutlet weak var commentLabel: NSTextField!
-    @IBOutlet weak var commentImageView: NSImageView!
-    @IBOutlet weak var reviewImageView: NSImageView!
-    @IBOutlet weak var conflictImageView: NSImageView!
+    @IBOutlet var newReviewImageView: NSImageView!
+    @IBOutlet var commentLabel: NSTextField!
+    @IBOutlet var commentImageView: NSImageView!
+    @IBOutlet var reviewImageView: NSImageView!
+    @IBOutlet var conflictImageView: NSImageView!
 
     @IBAction func buttonAction(_ sender: Any) {
         delegate?.reviewListCellDidClickTriggerButton(self)
@@ -53,7 +52,11 @@ class ReviewListCell: NSTableCellView {
         branchLabel.stringValue = viewModel.branch
         commitLabel.stringValue = viewModel.commitMessage
         nameLabel.stringValue = viewModel.name
-        avatarImageView.image = viewModel.avatar
+        if let avatar = viewModel.avatar {
+            avatarImageView.image = avatar
+        } else if let url = viewModel.avatarUrl {
+            avatarImageView.sd_setImage(with: URL(string: url))
+        }
 
         newReviewImageView.isHidden = !viewModel.hasNewEvent
         conflictImageView.isHidden = !viewModel.isMergeConflict
@@ -62,12 +65,12 @@ class ReviewListCell: NSTableCellView {
         commentLabel.isHidden = (viewModel.newComments == 0)
         commentImageView.isHidden = (viewModel.newComments == 0)
 
-        reviewImageView.image = NSImage.init(named: "Review\(viewModel.reviewScore.rawValue)")
+        reviewImageView.image = NSImage(named: "Review\(viewModel.reviewScore.rawValue)")
     }
 
     private func hasChinese(in string: String) -> Bool {
         for (_, value) in string.enumerated() {
-            if ("\u{4E00}" <= value  && value <= "\u{9FA5}") {
+            if value >= "\u{4E00}", value <= "\u{9FA5}" {
                 return true
             }
         }

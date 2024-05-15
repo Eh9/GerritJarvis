@@ -16,21 +16,25 @@ class GitlabService {
     private var user: String!
     private var gitlab: GLApi!
 
-    func setup() {
+    private(set) var trackingMRs: [GLModel.MergeRequest] = []
+    private(set) var projectInfos: [Int: GLModel.Project] = [:] // projectID: project
+    private(set) var mrUpdateTime: [Int: Date?] = [:] // mr.iid: updateDate
+
+    func setup() async {
         self.user = GitLabConfigs.user
-        // TODO: URL error, append /api/v4
-        gitlab = GLApi(config: .init(baseURL: URL(string: GitLabConfigs.baseUrl)!) {
-            $0.token = GitLabConfigs.token
-        })
-        Task { await setupUserInfo() }
+        guard let url = URL(string: GitLabConfigs.baseUrl.appending("/api/v4")) else {
+            return
+        }
+        gitlab = GLApi(config: .init(baseURL: url) { $0.token = GitLabConfigs.token })
+        await setupUserInfo()
     }
 
-    func fetchMRs() async -> [GLModel.MergeRequest] {
+    func fetchMRs() async {
         await setupUserInfo()
         let groups = GitLabConfigs.groupInfo.groups.filter {
             GitLabConfigs.groupInfo.observedGroups.contains($0.id)
         }
-        var searchTexts = groups.compactMap(\.full_name)
+        var searchTexts = groups.compactMap(\.fullName)
         if let userName = GitLabConfigs.user.split(separator: "@").first { searchTexts.append(String(userName)) }
 
         var mrs: [GLModel.MergeRequest] = []
@@ -41,12 +45,18 @@ class GitlabService {
             }
         }
         if let ownedMRs = await fetchOwnedMRs() {
-            mrs.append(contentsOf: ownedMRs)
+            mrs.append(contentsOf: ownedMRs.filter { mr in mrs.contains(where: { $0.iid == mr.iid }) })
         }
         if let reviewedMRs = await fetchReviewedMRs() {
-            mrs.append(contentsOf: reviewedMRs)
+            mrs.append(contentsOf: reviewedMRs.filter { mr in mrs.contains(where: { $0.iid == mr.iid }) })
         }
-        return mrs
+        trackingMRs = mrs
+        mrUpdateTime = .init(uniqueKeysWithValues: mrs.map { ($0.iid, $0.updated_at) })
+        for mr in mrs {
+            if let project = await fetchProject(id: mr.project_id) {
+                projectInfos[mr.project_id] = project
+            }
+        }
     }
 
     private func fetchUserInfo() async -> GLModel.User? {
@@ -68,8 +78,7 @@ class GitlabService {
     }
 
     private func fetchMRList(searchText: String) async -> [GLModel.MergeRequest]? {
-        let text = searchText.replacingOccurrences(of: " ", with: "")
-            .addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
+        guard let text = searchText.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else { return nil }
         let response: GLResponse<[GLModel.MergeRequest]>? =
             try? await gitlab.execute(.init(endpoint: CustomURLs.mergeRequest(searchText: text)))
         return try? response?.decode()
@@ -97,35 +106,13 @@ class GitlabService {
         let response = try? await gitlab.mergeRequest.get(id, project: .id(projectId))
         return try? response?.decode()
     }
+
+    private func fetchProject(id: Int) async -> GLModel.Project? {
+        try? await gitlab.projects.get(project: .id(id)).decode()
+    }
 }
 
 // MARK: - Extra Gitlab Apis
-
-// ref: https://docs.gitlab.com/ee/api/merge_requests.html#merge-status
-public enum DetailMergeStatus: String {
-    case blockedStatus = "blocked_status"
-    case checking
-    case unchecked
-    case ciMustPass = "ci_must_pass"
-    case ciStillRunning = "ci_still_running"
-    case discussionsNotResolved = "discussions_not_resolved"
-    case draftStatus = "draft_status"
-    case externalStatusChecks = "external_status_checks"
-    case mergeable
-    case notApproved = "not_approved"
-    case notOpen = "not_open"
-    case jiraAssociationMissing = "jira_association_missing"
-    case needRebase = "need_rebase"
-    case conflict
-    case requestedChanges = "requested_changes"
-}
-
-public enum MRState: String {
-    case opened
-    case closed
-    case locked
-    case merged
-}
 
 private enum CustomURLs: GLEndpoint {
     case groups
