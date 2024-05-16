@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -17,6 +17,7 @@
 		8D50D3112BEF685800E8AC01 /* GitLabConfigs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D50D3102BEF685800E8AC01 /* GitLabConfigs.swift */; };
 		8D50D3172BF4932500E8AC01 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D3162BF4932500E8AC01 /* SDWebImageSwiftUI */; };
 		8D50D31A2BF4A28300E8AC01 /* GitLabSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D3192BF4A28300E8AC01 /* GitLabSwift */; };
+		8D50D31D2BF62FE600E8AC01 /* GitLabSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D31C2BF62FE600E8AC01 /* GitLabSwift */; };
 		D207F0DD2272BBA5000EB2B4 /* Avatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D207F0DC2272BBA4000EB2B4 /* Avatar.swift */; };
 		D207F0E02272BE06000EB2B4 /* GerritResponseUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = D207F0DF2272BE06000EB2B4 /* GerritResponseUtils.swift */; };
 		D2350AE32180616A0002A17D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2350AE22180616A0002A17D /* AppDelegate.swift */; };
@@ -118,6 +119,7 @@
 				8D50D3172BF4932500E8AC01 /* SDWebImageSwiftUI in Frameworks */,
 				8D50D31A2BF4A28300E8AC01 /* GitLabSwift in Frameworks */,
 				8D50D2EE2BEE044C00E8AC01 /* ObjectMapper in Frameworks */,
+				8D50D31D2BF62FE600E8AC01 /* GitLabSwift in Frameworks */,
 				8D50D2EB2BEE038A00E8AC01 /* Alamofire in Frameworks */,
 				8D50D2F42BEE050500E8AC01 /* Settings in Frameworks */,
 				8D50D2FE2BEE074100E8AC01 /* LaunchAtLogin in Frameworks */,
@@ -414,6 +416,7 @@
 				8D50D2FD2BEE074100E8AC01 /* LaunchAtLogin */,
 				8D50D3162BF4932500E8AC01 /* SDWebImageSwiftUI */,
 				8D50D3192BF4A28300E8AC01 /* GitLabSwift */,
+				8D50D31C2BF62FE600E8AC01 /* GitLabSwift */,
 			);
 			productName = GerritJarvis;
 			productReference = D2350ADF2180616A0002A17D /* GerritJarvis.app */;
@@ -457,7 +460,7 @@
 				8D50D2F22BEE050500E8AC01 /* XCRemoteSwiftPackageReference "Settings" */,
 				8D50D2FC2BEE074100E8AC01 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */,
 				8D50D3152BF4932500E8AC01 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
-				8D50D3182BF4A28300E8AC01 /* XCLocalSwiftPackageReference "../GitLabSwift" */,
+				8D50D31B2BF62FE600E8AC01 /* XCRemoteSwiftPackageReference "GitLabSwift" */,
 			);
 			productRefGroup = D2350AE02180616A0002A17D /* Products */;
 			projectDirPath = "";
@@ -753,13 +756,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		8D50D3182BF4A28300E8AC01 /* XCLocalSwiftPackageReference "../GitLabSwift" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../GitLabSwift;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
 		8D50D2E92BEE038A00E8AC01 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -809,6 +805,14 @@
 				minimumVersion = 3.0.4;
 			};
 		};
+		8D50D31B2BF62FE600E8AC01 /* XCRemoteSwiftPackageReference "GitLabSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Eh9/GitLabSwift";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -844,6 +848,11 @@
 		};
 		8D50D3192BF4A28300E8AC01 /* GitLabSwift */ = {
 			isa = XCSwiftPackageProductDependency;
+			productName = GitLabSwift;
+		};
+		8D50D31C2BF62FE600E8AC01 /* GitLabSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8D50D31B2BF62FE600E8AC01 /* XCRemoteSwiftPackageReference "GitLabSwift" */;
 			productName = GitLabSwift;
 		};
 /* End XCSwiftPackageProductDependency section */

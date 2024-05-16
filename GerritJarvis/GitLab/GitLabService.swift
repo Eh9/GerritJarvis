@@ -9,6 +9,7 @@
 import Foundation
 import GitLabSwift
 
+// TODO: Use OSLog instead of print
 class GitlabService {
     static let shared = GitlabService()
     private init() {}
@@ -60,13 +61,21 @@ class GitlabService {
     }
 
     private func fetchUserInfo() async -> GLModel.User? {
-        let response = try? await gitlab.users.me()
-        return try? response?.decode()
+        do { return try await gitlab.users.me().decode() }
+        catch {
+            print(error)
+            return nil
+        }
     }
 
     private func fetchGroupInfo() async -> [GLModel.Group] {
-        let response: GLResponse<[GLModel.Group]>? = try? await gitlab.execute(.init(endpoint: CustomURLs.groups))
-        return (try? response?.decode()) ?? []
+        do {
+            let response: GLResponse<[GLModel.Group]> = try await gitlab.execute(.init(endpoint: CustomURLs.groups))
+            return try response.decode() ?? []
+        } catch {
+            print(error)
+            return []
+        }
     }
 
     private func setupUserInfo() async {
@@ -79,36 +88,56 @@ class GitlabService {
 
     private func fetchMRList(searchText: String) async -> [GLModel.MergeRequest]? {
         guard let text = searchText.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else { return nil }
-        let response: GLResponse<[GLModel.MergeRequest]>? =
-            try? await gitlab.execute(.init(endpoint: CustomURLs.mergeRequest(searchText: text)))
-        return try? response?.decode()
+        do {
+            let response: GLResponse<[GLModel.MergeRequest]>? =
+                try await gitlab.execute(.init(endpoint: CustomURLs.mergeRequest(searchText: text)))
+            return try response?.decode()
+        } catch {
+            print(error)
+            return nil
+        }
     }
 
     private func fetchOwnedMRs() async -> [GLModel.MergeRequest]? {
-        let response = try? await gitlab.mergeRequest.list(options: {
-            $0.authorId = GitLabConfigs.userInfo?.id
-            $0.state = .opened
-            $0.perPage = 100
-        })
-        return try? response?.decode()
+        do {
+            return try await gitlab.mergeRequest.list(options: {
+                $0.authorId = GitLabConfigs.userInfo?.id
+                $0.state = .opened
+                $0.perPage = 100
+            }).decode()
+        } catch {
+            print(error)
+            return nil
+        }
     }
 
     private func fetchReviewedMRs() async -> [GLModel.MergeRequest]? {
-        let response = try? await gitlab.mergeRequest.list(options: {
-            $0.reviewerId = GitLabConfigs.userInfo?.id
-            $0.state = .opened
-            $0.perPage = 100
-        })
-        return try? response?.decode()
+        do {
+            return try await gitlab.mergeRequest.list(options: {
+                $0.reviewerId = GitLabConfigs.userInfo?.id
+                $0.state = .opened
+                $0.perPage = 100
+            }).decode()
+        } catch {
+            print(error)
+            return nil
+        }
     }
 
     private func fetchMRStatus(id: Int, projectId: Int) async -> GLModel.MergeRequest? {
-        let response = try? await gitlab.mergeRequest.get(id, project: .id(projectId))
-        return try? response?.decode()
+        do { return try await gitlab.mergeRequest.get(id, project: .id(projectId)).decode() }
+        catch {
+            print(error)
+            return nil
+        }
     }
 
     private func fetchProject(id: Int) async -> GLModel.Project? {
-        try? await gitlab.projects.get(project: .id(id)).decode()
+        do { return try await gitlab.projects.get(project: .id(id)).decode() }
+        catch {
+            print(error)
+            return nil
+        }
     }
 }
 
@@ -121,8 +150,7 @@ private enum CustomURLs: GLEndpoint {
     public var value: String {
         switch self {
         case .groups: "/groups"
-        case let .mergeRequest(searchText):
-            "/merge_requests?state=opened&scope=all&per_page=100&search=\(searchText)"
+        case let .mergeRequest(searchText): "/merge_requests?state=opened&scope=all&per_page=100&search=\(searchText)"
         }
     }
 }

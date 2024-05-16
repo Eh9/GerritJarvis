@@ -26,6 +26,7 @@ class ReviewListCellViewModel: NSObject {
     var hasNewEvent: Bool = false
     var isMergeConflict: Bool = false
     var isOurNotReady: Bool = false
+    var gitlabWebUrl: URL?
 
     init(change: Change) {
         changeNumber = change.number
@@ -69,6 +70,7 @@ class ReviewListCellViewModel: NSObject {
         commitMessage = mr.title ?? "null_title"
         hasNewEvent = false
         isMergeConflict = mr.has_conflicts == true
+        gitlabWebUrl = mr.web_url
         reviewScore = switch mr.upvotes {
         case 1: .PlusOne
         case 2...: .PlusTwo

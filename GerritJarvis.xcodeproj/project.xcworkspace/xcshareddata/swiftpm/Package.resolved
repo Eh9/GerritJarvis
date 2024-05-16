@@ -1,5 +1,5 @@
 {
-  "originHash" : "6229b56ccce2ffe63368a56b5f82b43a8065419605e0475d99d0836c3fb1ce69",
+  "originHash" : "382b16dd2b21f62fb42de153f2f7c65b1e34225a0cb82f03b7d1532581106cc7",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "f455c2975872ccd2d9c81594c658af65716e9b9a",
         "version" : "5.9.1"
+      }
+    },
+    {
+      "identity" : "gitlabswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Eh9/GitLabSwift",
+      "state" : {
+        "branch" : "main",
+        "revision" : "7b5755c39f5c95f81966ead7a3ea697b153a2f64"
       }
     },
     {

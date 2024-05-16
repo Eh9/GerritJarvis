@@ -145,6 +145,10 @@ extension ReviewListViewController {
         appDelegate.closePopover(sender: nil)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: {
+            if let gitlabWebUrl = vm.gitlabWebUrl {
+                NSWorkspace.shared.open(gitlabWebUrl)
+                return
+            }
             if let number = self.dataController.cellViewModels[table.selectedRow].changeNumber {
                 GerritUtils.openGerrit(number: number, revisionRange: self.dataController.revisionRange(of: number))
             }
@@ -191,6 +195,10 @@ extension ReviewListViewController: ReviewListCellDelegate {
     }
 
     func reviewListCellDidClickAuthor(_ cell: ReviewListCell) {
+        if let url = cell.gitlabUrl {
+            NSWorkspace.shared.open(url)
+            return
+        }
         guard let change = reviewChange(for: cell) else {
             return
         }
@@ -198,6 +206,10 @@ extension ReviewListViewController: ReviewListCellDelegate {
     }
 
     func reviewListCellDidClickProject(_ cell: ReviewListCell) {
+        if let url = cell.gitlabUrl {
+            NSWorkspace.shared.open(url)
+            return
+        }
         guard let change = reviewChange(for: cell) else {
             return
         }
@@ -205,6 +217,10 @@ extension ReviewListViewController: ReviewListCellDelegate {
     }
 
     func reviewListCellDidClickBranch(_ cell: ReviewListCell) {
+        if let url = cell.gitlabUrl {
+            NSWorkspace.shared.open(url)
+            return
+        }
         guard let change = reviewChange(for: cell) else {
             return
         }

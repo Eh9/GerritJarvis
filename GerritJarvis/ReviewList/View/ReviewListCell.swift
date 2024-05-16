@@ -47,11 +47,19 @@ class ReviewListCell: NSTableCellView {
         delegate?.reviewListCellDidClickBranch(self)
     }
 
+    private(set) var gitlabUrl: URL?
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        gitlabUrl = nil
+    }
+
     func bindData(with viewModel: ReviewListCellViewModel) {
         projectLabel.stringValue = viewModel.project
         branchLabel.stringValue = viewModel.branch
         commitLabel.stringValue = viewModel.commitMessage
         nameLabel.stringValue = viewModel.name
+        gitlabUrl = viewModel.gitlabWebUrl
         if let avatar = viewModel.avatar {
             avatarImageView.image = avatar
         } else if let url = viewModel.avatarUrl {
