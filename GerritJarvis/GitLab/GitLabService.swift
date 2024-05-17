@@ -8,14 +8,15 @@
 
 import Foundation
 import GitLabSwift
+import OSLog
 
-// TODO: Use OSLog instead of print
 class GitlabService {
     static let shared = GitlabService()
     private init() {}
 
     private var user: String!
     private var gitlab: GLApi!
+    private let logger = Logger()
 
     private(set) var trackingMRs: [GLModel.MergeRequest] = []
     private(set) var projectInfos: [Int: GLModel.Project] = [:] // projectID: project
@@ -50,10 +51,10 @@ class GitlabService {
             }
         }
         if let ownedMRs = await fetchOwnedMRs() {
-            mrs.append(contentsOf: ownedMRs.filter { mr in mrs.contains(where: { $0.iid == mr.iid }) })
+            mrs.append(contentsOf: ownedMRs.filter { mr in !mrs.contains(where: { $0.iid == mr.iid }) })
         }
         if let reviewedMRs = await fetchReviewedMRs() {
-            mrs.append(contentsOf: reviewedMRs.filter { mr in mrs.contains(where: { $0.iid == mr.iid }) })
+            mrs.append(contentsOf: reviewedMRs.filter { mr in !mrs.contains(where: { $0.iid == mr.iid }) })
         }
         trackingMRs = mrs
         mrUpdateTime = .init(uniqueKeysWithValues: mrs.map { ($0.iid, $0.updated_at) })
@@ -75,9 +76,11 @@ class GitlabService {
     private func fetchGroupInfo() async -> [GLModel.Group] {
         do {
             let response: GLResponse<[GLModel.Group]> = try await gitlab.execute(.init(endpoint: CustomURLs.groups))
-            return try response.decode() ?? []
+            let result = try response.decode() ?? []
+            logger.log(level: .info, "gitlabGroupInfo \(result, privacy: .public)")
+            return result
         } catch {
-            print(error)
+            logger.error("\(error, privacy: .public)")
             return []
         }
     }
@@ -97,7 +100,7 @@ class GitlabService {
                 try await gitlab.execute(.init(endpoint: CustomURLs.mergeRequest(searchText: text)))
             return try response?.decode()
         } catch {
-            print(error)
+            logger.error("\(error, privacy: .public)")
             return nil
         }
     }
@@ -110,7 +113,7 @@ class GitlabService {
                 $0.perPage = 100
             }).decode()
         } catch {
-            print(error)
+            logger.error("\(error, privacy: .public)")
             return nil
         }
     }
@@ -123,7 +126,7 @@ class GitlabService {
                 $0.perPage = 100
             }).decode()
         } catch {
-            print(error)
+            logger.error("\(error, privacy: .public)")
             return nil
         }
     }
@@ -131,7 +134,7 @@ class GitlabService {
     private func fetchMRStatus(id: Int, projectId: Int) async -> GLModel.MergeRequest? {
         do { return try await gitlab.mergeRequest.get(id, project: .id(projectId)).decode() }
         catch {
-            print(error)
+            logger.error("\(error, privacy: .public)")
             return nil
         }
     }
@@ -139,7 +142,7 @@ class GitlabService {
     private func fetchProject(id: Int) async -> GLModel.Project? {
         do { return try await gitlab.projects.get(project: .id(id)).decode() }
         catch {
-            print(error)
+            logger.error("\(error, privacy: .public)")
             return nil
         }
     }

@@ -47,7 +47,7 @@ struct GitLabAccountSettingView: View {
                     .font(.caption).foregroundStyle(.gray)
                     .frame(width: Metric.textFieldWidth, alignment: .leading)
                     .lineLimit(nil)
-            }.padding(.bottom)
+            }.padding(.bottom, 10)
             if groupInfo.hasLogin {
                 HStack {
                     Text("Subscribed Groups")
