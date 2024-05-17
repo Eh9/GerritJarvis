@@ -94,8 +94,11 @@ class ReviewListDataController: NSObject {
         {
             gerritService = GerritService(user: user, password: password, baseUrl: baseUrl)
         }
-        Task { await gitlabService.setup() }
-        startTimer()
+        Task {
+            defer { startTimer() }
+            guard GitLabConfigs.userInfo == nil else { return }
+            await gitlabService.setup()
+        }
     }
 
     func fetchReviewList() {
@@ -104,15 +107,17 @@ class ReviewListDataController: NSObject {
         }
         isFetchingList = true
         let dispathGroup = DispatchGroup()
-        dispathGroup.enter()
         var newChanges: [Change] = []
-        gerritService?.fetchReviewList { changes in
-            defer { dispathGroup.leave() }
-            guard let changes = changes else {
-                return
+        if let gerritService = gerritService {
+            dispathGroup.enter()
+            gerritService.fetchReviewList { changes in
+                defer { dispathGroup.leave() }
+                guard let changes = changes else {
+                    return
+                }
+                newChanges = self.reorderChanges(changes)
+                self.checkMerged(newChanges)
             }
-            newChanges = self.reorderChanges(changes)
-            self.checkMerged(newChanges)
         }
         dispathGroup.enter()
         Task {

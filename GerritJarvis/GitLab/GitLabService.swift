@@ -22,6 +22,10 @@ class GitlabService {
     private(set) var mrUpdateTime: [Int: Date?] = [:] // mr.iid: updateDate
 
     func setup() async {
+//        // reset DEBUG Code
+//        let appDomain = Bundle.main.bundleIdentifier
+//        UserDefaults.standard.removePersistentDomain(forName: appDomain!)
+//        UserDefaults.standard.synchronize()
         self.user = GitLabConfigs.user
         guard let url = URL(string: GitLabConfigs.baseUrl.appending("/api/v4")) else {
             return
@@ -79,7 +83,7 @@ class GitlabService {
     }
 
     private func setupUserInfo() async {
-        GitLabConfigs.groupInfo.groups = await fetchGroupInfo()
+        GitLabConfigs.groups = await fetchGroupInfo()
         GitLabConfigs.userInfo = await fetchUserInfo()
         if let email = GitLabConfigs.userInfo?.email { GitLabConfigs.user = email }
         GitLabConfigs.hasSetup = GitLabConfigs.userInfo != nil

@@ -37,7 +37,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 title: "GitLabAccount",
                 toolbarIcon: NSImage(named: NSImage.advancedName)!
             ) {
-                GitLabAccountSettingView().environment(GitLabConfigs.groupInfo)
+                GitLabAccountSettingView().environmentObject(GitLabConfigs.groupInfo)
             },
             BlackListPreferenceViewController(),
         ]

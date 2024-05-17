@@ -22,7 +22,7 @@ struct GitLabAccountSettingView: View {
     @State private var wrongInputAlert: Bool = false
     @State private var loginErrorAlert: Bool = false
 
-    @Environment(ObservedGroupsInfo.self) var groupInfo
+    @EnvironmentObject var groupInfo: ObservedGroupsInfo
 
     var body: some View {
         VStack {
@@ -46,6 +46,7 @@ struct GitLabAccountSettingView: View {
                 Text("GitLab -> Edit Profile -> Access Tokens -> Create Personal access token(read_api)")
                     .font(.caption).foregroundStyle(.gray)
                     .frame(width: Metric.textFieldWidth, alignment: .leading)
+                    .lineLimit(nil)
             }.padding(.bottom)
             if groupInfo.hasLogin {
                 HStack {
@@ -95,11 +96,17 @@ struct GitLabAccountSettingView: View {
         GitLabConfigs.token = token
         Task {
             await GitlabService.shared.setup()
-            if GitLabConfigs.userInfo == nil { loginErrorAlert = true }
+            if GitLabConfigs.userInfo == nil { loginErrorAlert = true } else {
+                NotificationCenter.default.post(
+                    name: ConfigManager.AccountUpdatedNotification,
+                    object: nil,
+                    userInfo: nil
+                )
+            }
         }
     }
 }
 
 #Preview {
-    GitLabAccountSettingView().environment(GitLabConfigs.groupInfo)
+    GitLabAccountSettingView().environmentObject(GitLabConfigs.groupInfo)
 }

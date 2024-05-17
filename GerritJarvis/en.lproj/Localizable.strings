@@ -8,7 +8,7 @@
 
 "RunTrigger" = "Run Trigger";
 "ReviewMerged" = "My Review is Merged";
-"ConfigGerritUser" = "Please Config Gerrit User";
+"ConfigUser" = "Please Config Gerrit or GitLab User";
 "FetchListFailed" = "Can't Fetch Review List, Please Check Network or Account Settings";
 "EmptyReview" = "No Review";
 "SaveFailed" = "Save Failed";

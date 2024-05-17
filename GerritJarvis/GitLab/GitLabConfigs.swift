@@ -65,29 +65,30 @@ enum GitLabConfigs {
     // ui observable
     static var groupInfo: ObservedGroupsInfo = .init()
     static func setupGroupInfo() {
-        groupInfo.groups = groups
-        groupInfo.observedGroups = observedGroups
-        groupInfo.hasLogin = hasSetup
+        DispatchQueue.main.async {
+            groupInfo.groups = groups
+            groupInfo.observedGroups = observedGroups
+            groupInfo.hasLogin = hasSetup
+        }
     }
 }
 
 import SwiftUI
 
-@Observable
-class ObservedGroupsInfo: Codable {
-    var groups: [GLModel.Group] = GitLabConfigs.groups {
+class ObservedGroupsInfo: ObservableObject {
+    @Published var groups: [GLModel.Group] = GitLabConfigs.groups {
         didSet {
             GitLabConfigs.groups = groups
         }
     }
 
-    var observedGroups: Set<Int> = GitLabConfigs.observedGroups {
+    @Published var observedGroups: Set<Int> = GitLabConfigs.observedGroups {
         didSet {
             GitLabConfigs.observedGroups = observedGroups
         }
     }
 
-    var hasLogin: Bool = GitLabConfigs.hasSetup {
+    @Published var hasLogin: Bool = GitLabConfigs.hasSetup {
         didSet {
             GitLabConfigs.hasSetup = hasLogin
         }

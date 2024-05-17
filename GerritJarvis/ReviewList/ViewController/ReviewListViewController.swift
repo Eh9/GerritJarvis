@@ -55,7 +55,7 @@ class ReviewListViewController: NSViewController {
         tableView.reloadData()
         if !ConfigManager.shared.hasUser() {
             emptyView.isHidden = false
-            emptyView.titleLabel.stringValue = NSLocalizedString("ConfigGerritUser", comment: "")
+            emptyView.titleLabel.stringValue = NSLocalizedString("ConfigUser", comment: "")
             emptyView.imageView.image = NSImage(named: "EmptyUser")
             emptyView.preferenceButton.isHidden = false
             clearButton.isEnabled = false
