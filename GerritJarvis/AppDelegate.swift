@@ -60,6 +60,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if ConfigManager.shared.hasUser() {
             reviewListDataController.setupAccount()
         }
+        UserNotificationHandler.shared.setup()
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {

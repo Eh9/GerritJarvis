@@ -60,8 +60,8 @@ class ReviewListCellViewModel: NSObject {
 
     init(mr: GLModel.MergeRequest, project: GLModel.Project?) {
         changeNumber = mr.iid
-        newEventKey = "test"
-        changeNumberKey = "test"
+        newEventKey = ""
+        changeNumberKey = ""
         latestMessageId = String(mr.user_notes_count)
         self.project = project?.name ?? "null_project"
         branch = mr.source_branch ?? "null_branch"
@@ -75,6 +75,9 @@ class ReviewListCellViewModel: NSObject {
         case 1: .PlusOne
         case 2...: .PlusTwo
         default: .Zero
+        }
+        if GitlabService.shared.approvalInfos[mr.id]?.user_has_approved == true {
+            reviewScore = .PlusTwo
         }
         super.init()
     }

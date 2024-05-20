@@ -20,7 +20,12 @@ class GitlabService {
 
     private(set) var trackingMRs: [GLModel.MergeRequest] = []
     private(set) var projectInfos: [Int: GLModel.Project] = [:] // projectID: project
-    private(set) var mrUpdateTime: [Int: Date?] = [:] // mr.iid: updateDate
+    private(set) var discussionInfos: [Int: [GLModel.Discussion.Note]] = [:] // mr.id: notes
+    private(set) var approvalInfos: [Int: GLModel.MergeRequestApprovals] = [:] // mr.id: approvalInfo
+    private(set) var mrsUpdated: [GLModel.MergeRequest] = []
+
+    private var mrsNotTracking: [GLModel.MergeRequest] = []
+    private var mrUpdateTime: [Int: Date?] = [:] // mr.id: updateDate
 
     func setup() async {
 //        // reset DEBUG Code
@@ -51,16 +56,107 @@ class GitlabService {
             }
         }
         if let ownedMRs = await fetchOwnedMRs() {
-            mrs.append(contentsOf: ownedMRs.filter { mr in !mrs.contains(where: { $0.iid == mr.iid }) })
+            mrs.append(contentsOf: ownedMRs.filter { mr in !mrs.contains(where: { $0.id == mr.id }) })
         }
         if let reviewedMRs = await fetchReviewedMRs() {
-            mrs.append(contentsOf: reviewedMRs.filter { mr in !mrs.contains(where: { $0.iid == mr.iid }) })
+            mrs.append(contentsOf: reviewedMRs.filter { mr in !mrs.contains(where: { $0.id == mr.id }) })
         }
+        mrsNotTracking = trackingMRs.filter { mr in !mrs.contains(where: { $0.id == mr.id }) }
+        mrsUpdated = mrs.compactMap { if let t = mrUpdateTime[$0.id], t != $0.updated_at { $0 } else { nil } }
+        notifyVotes(newMrs: mrs)
         trackingMRs = mrs
-        mrUpdateTime = .init(uniqueKeysWithValues: mrs.map { ($0.iid, $0.updated_at) })
+        mrUpdateTime = .init(uniqueKeysWithValues: mrs.map { ($0.id, $0.updated_at) })
         for mr in mrs {
-            if let project = await fetchProject(id: mr.project_id) {
+            if projectInfos[mr.project_id] == nil, let project = await fetchProject(id: mr.project_id) {
                 projectInfos[mr.project_id] = project
+            }
+            if discussionInfos[mr.id] == nil,
+               let discussions = await fetchMRDiscussions(id: mr.iid, projectId: mr.project_id)
+            {
+                discussionInfos[mr.id] = discussions.flatMap(\.notes).filter { $0.system == false }
+            }
+            if approvalInfos[mr.id] == nil,
+               let approvals = await fetchMRApprovals(id: mr.iid, projectId: mr.project_id)
+            {
+                approvalInfos[mr.id] = approvals
+            }
+        }
+        await notityNotTrackingMR()
+        await notifyUpdatedMR()
+    }
+
+    // TODO: how to filter votes action from the user
+    private func notifyVotes(newMrs: [GLModel.MergeRequest]) {
+        newMrs.forEach { newMr in
+            if let oldMr = trackingMRs.first(where: { $0.id == newMr.id }),
+               oldMr.downvotes != newMr.downvotes || oldMr.upvotes != newMr.upvotes
+            {
+                UserNotificationHandler.shared.sendNotification(
+                    title: "\(newMr.title ?? "")",
+                    body: "votes updated. 👍:\(newMr.upvotes)     👎:\(newMr.downvotes)",
+                    url: newMr.web_url.absoluteString
+                )
+            }
+        }
+    }
+
+    private func notityNotTrackingMR() async {
+        for mr in mrsNotTracking {
+            if let updatedMR = await fetchMRStatus(id: mr.iid, projectId: mr.project_id) {
+                var message: String = ""
+                if let mergedBy = updatedMR.merged_by, let mergedAt = updatedMR.merged_at {
+                    message = "merged by \(mergedBy.name) at \(mergedAt)"
+                }
+                if let closedBy = updatedMR.closed_by, let closedAt = updatedMR.closed_at {
+                    message = "closed by \(closedBy.name) at \(closedAt)"
+                }
+                UserNotificationHandler.shared.sendNotification(
+                    title: "\(mr.title ?? "")",
+                    body: message,
+                    url: updatedMR.web_url.absoluteString
+                )
+            }
+        }
+        mrsNotTracking.removeAll()
+    }
+
+    private func notifyUpdatedMR() async {
+        // discusstion updated
+        for mr in mrsUpdated {
+            guard let discussions = await fetchMRDiscussions(id: mr.iid, projectId: mr.project_id) else { continue }
+            let notes = discussions.flatMap(\.notes).filter { $0.system == false }
+            defer { discussionInfos[mr.id] = notes }
+            guard let oldNotes = discussionInfos[mr.id] else { continue }
+            let updateNotes: [GLModel.Discussion.Note] = notes.compactMap { note in
+                if let oldNote = oldNotes.first(where: { $0.id == note.id }),
+                   oldNote.updated_at == note.updated_at
+                {
+                    return nil
+                }
+                return note
+            }.sorted { $0.updated_at! < $1.updated_at! }
+            if !updateNotes.isEmpty {
+                UserNotificationHandler.shared.sendNotification(
+                    title: "\(mr.title ?? "")",
+                    body: "New comments",
+                    url: mr.web_url.absoluteString + "#note_\(updateNotes.first!.id)"
+                )
+            }
+        }
+        // approval updated
+        for mr in mrsUpdated {
+            guard let approval = await fetchMRApprovals(id: mr.iid, projectId: mr.project_id) else { continue }
+            defer { approvalInfos[mr.id] = approval }
+            guard let oldApproval = approvalInfos[mr.id] else { continue }
+            if let newUsers = approval.approved_by?.compactMap({ approvalBy in
+                if (oldApproval.approved_by ?? []).contains(where: { $0.user.id == approvalBy.user.id }) == false
+                { return approvalBy.user } else { return nil }
+            }), !newUsers.isEmpty {
+                UserNotificationHandler.shared.sendNotification(
+                    title: "\(mr.title ?? "")",
+                    body: "approved by \(newUsers.map(\.name).joined(separator: "、"))",
+                    url: mr.web_url.absoluteString
+                )
             }
         }
     }
@@ -141,6 +237,22 @@ class GitlabService {
 
     private func fetchProject(id: Int) async -> GLModel.Project? {
         do { return try await gitlab.projects.get(project: .id(id)).decode() }
+        catch {
+            logger.error("\(error, privacy: .public)")
+            return nil
+        }
+    }
+
+    private func fetchMRDiscussions(id: Int, projectId: Int) async -> [GLModel.Discussion]? {
+        do { return try await gitlab.mergeRequest.discussions(id, project: .id(projectId)).decode() }
+        catch {
+            logger.error("\(error, privacy: .public)")
+            return nil
+        }
+    }
+
+    private func fetchMRApprovals(id: Int, projectId: Int) async -> GLModel.MergeRequestApprovals? {
+        do { return try await gitlab.mergeRequest.approvals(id, project: .id(projectId)).decode() }
         catch {
             logger.error("\(error, privacy: .public)")
             return nil

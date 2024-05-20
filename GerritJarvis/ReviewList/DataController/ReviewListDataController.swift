@@ -95,7 +95,7 @@ class ReviewListDataController: NSObject {
             gerritService = GerritService(user: user, password: password, baseUrl: baseUrl)
         }
         Task {
-            defer { startTimer() }
+            defer { DispatchQueue.main.async { self.startTimer() } }
             guard GitLabConfigs.userInfo == nil else { return }
             await gitlabService.setup()
         }
@@ -300,6 +300,7 @@ extension ReviewListDataController {
     private func updateGitlabMRs() {
         let gitLabCellModels = gitlabService.trackingMRs.map { mr in
             let viewModel = ReviewListCellViewModel(mr: mr, project: gitlabService.projectInfos[mr.project_id])
+            viewModel.hasNewEvent = gitlabService.mrsUpdated.contains { $0.id == mr.id }
             return viewModel
         }
         cellViewModels.append(contentsOf: gitLabCellModels)
