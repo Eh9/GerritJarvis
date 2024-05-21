@@ -56,10 +56,15 @@ class GitlabService {
             }
         }
         if let ownedMRs = await fetchOwnedMRs() {
-            mrs.append(contentsOf: ownedMRs.filter { mr in !mrs.contains(where: { $0.id == mr.id }) })
+            mrs.append(contentsOf: ownedMRs)
         }
         if let reviewedMRs = await fetchReviewedMRs() {
-            mrs.append(contentsOf: reviewedMRs.filter { mr in !mrs.contains(where: { $0.id == mr.id }) })
+            mrs.append(contentsOf: reviewedMRs)
+        }
+        mrs = mrs.reduce(into: []) { result, mr in
+            if !result.contains(where: { $0.id == mr.id }) {
+                result.append(mr)
+            }
         }
         mrsNotTracking = trackingMRs.filter { mr in !mrs.contains(where: { $0.id == mr.id }) }
         mrsUpdated = mrs.compactMap { if let t = mrUpdateTime[$0.id], t != $0.updated_at { $0 } else { nil } }
