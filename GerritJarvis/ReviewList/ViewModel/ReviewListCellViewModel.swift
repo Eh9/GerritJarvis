@@ -72,11 +72,13 @@ class ReviewListCellViewModel: NSObject {
         isMergeConflict = mr.has_conflicts == true
         gitlabWebUrl = mr.web_url
         reviewScore = switch mr.upvotes {
-        case 1: .PlusOne
-        case 2...: .PlusTwo
+        case 1...: .PlusOne
         default: .Zero
         }
-        if GitlabService.shared.approvalInfos[mr.id]?.user_has_approved == true {
+        if mr.downvotes > 0 {
+            reviewScore = .MinusOne
+        }
+        if GitlabService.shared.approvalInfos[mr.id]?.approved_by?.isEmpty == false {
             reviewScore = .PlusTwo
         }
         super.init()

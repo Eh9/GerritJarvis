@@ -26,12 +26,9 @@ class GitlabService {
 
     private var mrsNotTracking: [GLModel.MergeRequest] = []
     private var mrUpdateTime: [Int: Date?] = [:] // mr.id: updateDate
+    private var hasFinishedFirstFetch = false
 
     func setup() async {
-//        // reset DEBUG Code
-//        let appDomain = Bundle.main.bundleIdentifier
-//        UserDefaults.standard.removePersistentDomain(forName: appDomain!)
-//        UserDefaults.standard.synchronize()
         self.user = GitLabConfigs.user
         guard let url = URL(string: GitLabConfigs.baseUrl.appending("/api/v4")) else {
             return
@@ -66,6 +63,7 @@ class GitlabService {
                 result.append(mr)
             }
         }
+        notifyNewMR(newMrs: mrs)
         mrsNotTracking = trackingMRs.filter { mr in !mrs.contains(where: { $0.id == mr.id }) }
         mrsUpdated = mrs.compactMap { if let t = mrUpdateTime[$0.id], t != $0.updated_at { $0 } else { nil } }
         notifyVotes(newMrs: mrs)
@@ -88,12 +86,10 @@ class GitlabService {
         }
         await notityNotTrackingMR()
         await notifyUpdatedMR()
+        hasFinishedFirstFetch = true
     }
 
     func clear() {
-        let appDomain = Bundle.main.bundleIdentifier
-        UserDefaults.standard.removePersistentDomain(forName: appDomain!)
-        UserDefaults.standard.synchronize()
         trackingMRs = []
         projectInfos = [:]
         discussionInfos = [:]
@@ -107,6 +103,21 @@ class GitlabService {
         GitLabConfigs.user = ""
         GitLabConfigs.hasSetup = GitLabConfigs.userInfo != nil
         GitLabConfigs.setupGroupInfo()
+        hasFinishedFirstFetch = false
+    }
+
+    private func notifyNewMR(newMrs: [GLModel.MergeRequest]) {
+        guard hasFinishedFirstFetch else { return }
+        newMrs.forEach { newMr in
+            guard !trackingMRs.contains(where: { $0.id == newMr.id }),
+                  newMr.author?.id != GitLabConfigs.userInfo?.id
+            else { return }
+            UserNotificationHandler.shared.sendNotification(
+                title: "\(newMr.title ?? "")",
+                body: "New Review MergeRequest from \(newMr.author?.name ?? "null_name")",
+                url: newMr.web_url.absoluteString
+            )
+        }
     }
 
     // TODO: how to filter votes action from the user
@@ -159,6 +170,8 @@ class GitlabService {
                 }
                 return note
             }.sorted { $0.updated_at! < $1.updated_at! }
+            // 如果都是自己的 comment，则不需要通知
+            guard updateNotes.contains(where: { $0.author?.id != GitLabConfigs.userInfo?.id }) else { continue }
             if !updateNotes.isEmpty {
                 UserNotificationHandler.shared.sendNotification(
                     title: "\(mr.title ?? "")",
@@ -197,7 +210,6 @@ class GitlabService {
         do {
             let response: GLResponse<[GLModel.Group]> = try await gitlab.execute(.init(endpoint: CustomURLs.groups))
             let result = try response.decode() ?? []
-            logger.log(level: .info, "gitlabGroupInfo \(result, privacy: .public)")
             return result
         } catch {
             logger.error("\(error, privacy: .public)")

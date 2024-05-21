@@ -145,6 +145,7 @@ extension ReviewListViewController {
         appDelegate.closePopover(sender: nil)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: {
+            defer { table.deselectRow(table.selectedRow) }
             if let gitlabWebUrl = vm.gitlabWebUrl {
                 NSWorkspace.shared.open(gitlabWebUrl)
                 return
@@ -152,7 +153,6 @@ extension ReviewListViewController {
             if let number = self.dataController.cellViewModels[table.selectedRow].changeNumber {
                 GerritUtils.openGerrit(number: number, revisionRange: self.dataController.revisionRange(of: number))
             }
-            table.deselectRow(table.selectedRow)
             self.renderContentView()
         })
     }
