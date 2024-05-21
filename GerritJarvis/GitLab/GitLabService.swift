@@ -187,7 +187,8 @@ class GitlabService {
             defer { approvalInfos[mr.id] = approval }
             guard let oldApproval = approvalInfos[mr.id] else { continue }
             if let newUsers = approval.approved_by?.compactMap({ approvalBy in
-                if (oldApproval.approved_by ?? []).contains(where: { $0.user.id == approvalBy.user.id }) == false
+                if (oldApproval.approved_by ?? []).contains(where: { $0.user.id == approvalBy.user.id }) == false,
+                   approvalBy.user.isNotMe
                 { return approvalBy.user } else { return nil }
             }), !newUsers.isEmpty {
                 UserNotificationHandler.shared.sendNotification(
