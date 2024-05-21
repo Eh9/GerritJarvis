@@ -812,8 +812,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Eh9/GitLabSwift";
 			requirement = {
-				branch = main;
-				kind = branch;
+				kind = revision;
+				revision = 95fecccc8cf2f1605e713a3922ca6870e156d6ee;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

@@ -48,6 +48,7 @@ struct UserDefaultsValue<T: Codable> {
 
 enum GitLabConfigs {
     static var userInfo: GLModel.User?
+    static var groups: [GLModel.Group] = []
 
     @UserDefaultsValue(key: "gitlab_token", defaultValue: "")
     static var token: String
@@ -57,9 +58,7 @@ enum GitLabConfigs {
     static var user: String
     @UserDefaultsValue(key: "gitlab_has_setup", defaultValue: false)
     static var hasSetup: Bool
-    @UserDefaultsValue(key: "gitlab_groups_\(GitLabConfigs.user)", defaultValue: [])
-    static var groups: [GLModel.Group]
-    @UserDefaultsValue(key: "gitlab_observed_groups_\(GitLabConfigs.user)", defaultValue: [])
+    @UserDefaultsValue(key: "gitlab_observed_groups", defaultValue: [])
     static var observedGroups: Set<Int>
 
     // ui observable
