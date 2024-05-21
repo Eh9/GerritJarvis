@@ -110,7 +110,7 @@ class GitlabService {
         guard hasFinishedFirstFetch else { return }
         newMrs.forEach { newMr in
             guard !trackingMRs.contains(where: { $0.id == newMr.id }),
-                  newMr.author?.id != GitLabConfigs.userInfo?.id
+                  newMr.author?.isNotMe == true
             else { return }
             UserNotificationHandler.shared.sendNotification(
                 title: "\(newMr.title ?? "")",
@@ -139,12 +139,13 @@ class GitlabService {
         for mr in mrsNotTracking {
             if let updatedMR = await fetchMRStatus(id: mr.iid, projectId: mr.project_id) {
                 var message: String = ""
-                if let mergedBy = updatedMR.merged_by, let mergedAt = updatedMR.merged_at {
+                if let mergedBy = updatedMR.merged_by, let mergedAt = updatedMR.merged_at, mergedBy.isNotMe {
                     message = "merged by \(mergedBy.name) at \(mergedAt)"
                 }
-                if let closedBy = updatedMR.closed_by, let closedAt = updatedMR.closed_at {
+                if let closedBy = updatedMR.closed_by, let closedAt = updatedMR.closed_at, closedBy.isNotMe {
                     message = "closed by \(closedBy.name) at \(closedAt)"
                 }
+                guard !message.isEmpty else { return }
                 UserNotificationHandler.shared.sendNotification(
                     title: "\(mr.title ?? "")",
                     body: message,
@@ -171,7 +172,7 @@ class GitlabService {
                 return note
             }.sorted { $0.updated_at! < $1.updated_at! }
             // 如果都是自己的 comment，则不需要通知
-            guard updateNotes.contains(where: { $0.author?.id != GitLabConfigs.userInfo?.id }) else { continue }
+            guard updateNotes.contains(where: { $0.author?.isNotMe ?? false }) else { continue }
             if !updateNotes.isEmpty {
                 UserNotificationHandler.shared.sendNotification(
                     title: "\(mr.title ?? "")",
@@ -293,6 +294,12 @@ class GitlabService {
             logger.error("\(error, privacy: .public)")
             return nil
         }
+    }
+}
+
+private extension GLModel.User {
+    var isNotMe: Bool {
+        id != GitLabConfigs.userInfo?.id
     }
 }
 
