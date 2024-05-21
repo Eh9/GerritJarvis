@@ -72,6 +72,10 @@ struct GitLabAccountSettingView: View {
                         }
                     }
                 }.frame(height: 130)
+                HStack {
+                    Spacer()
+                    Button(action: { clear() }, label: { Text("clear account info") }).foregroundStyle(.red)
+                }
             } else {
                 Button(action: { login() }, label: { Text("Login") }).keyboardShortcut(.return)
             }
@@ -104,6 +108,13 @@ struct GitLabAccountSettingView: View {
                 )
             }
         }
+    }
+
+    private func clear() {
+        baseUrl = ""
+        email = ""
+        token = ""
+        GitlabService.shared.clear()
     }
 }
 

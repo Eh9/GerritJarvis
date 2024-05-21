@@ -85,6 +85,25 @@ class GitlabService {
         await notifyUpdatedMR()
     }
 
+    func clear() {
+        let appDomain = Bundle.main.bundleIdentifier
+        UserDefaults.standard.removePersistentDomain(forName: appDomain!)
+        UserDefaults.standard.synchronize()
+        trackingMRs = []
+        projectInfos = [:]
+        discussionInfos = [:]
+        approvalInfos = [:]
+        mrsUpdated = []
+
+        mrsNotTracking = []
+        mrUpdateTime = [:]
+        GitLabConfigs.groups = []
+        GitLabConfigs.userInfo = nil
+        GitLabConfigs.user = ""
+        GitLabConfigs.hasSetup = GitLabConfigs.userInfo != nil
+        GitLabConfigs.setupGroupInfo()
+    }
+
     // TODO: how to filter votes action from the user
     private func notifyVotes(newMrs: [GLModel.MergeRequest]) {
         newMrs.forEach { newMr in
