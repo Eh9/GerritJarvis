@@ -59,7 +59,7 @@ class GitlabService {
             mrs.append(contentsOf: reviewedMRs)
         }
         mrs = mrs.reduce(into: []) { result, mr in
-            if !result.contains(where: { $0.id == mr.id }) {
+            if !result.contains(where: { $0.id == mr.id }), mr.draft != true {
                 result.append(mr)
             }
         }

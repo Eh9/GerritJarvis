@@ -813,7 +813,7 @@
 			repositoryURL = "https://github.com/Eh9/GitLabSwift";
 			requirement = {
 				kind = revision;
-				revision = 95fecccc8cf2f1605e713a3922ca6870e156d6ee;
+				revision = b35dfada4150cfa7f86dd447600089d27e7d5832;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
