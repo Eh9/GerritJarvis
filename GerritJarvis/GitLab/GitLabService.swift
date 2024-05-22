@@ -38,6 +38,7 @@ class GitlabService {
     }
 
     func fetchMRs() async {
+        guard !user.isEmpty else { return }
         await setupUserInfo()
         let groups = GitLabConfigs.groupInfo.groups.filter {
             GitLabConfigs.groupInfo.observedGroups.contains($0.id)

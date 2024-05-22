@@ -41,13 +41,12 @@ struct GitLabAccountSettingView: View {
                 Spacer()
                 SecureField("token", text: $token).frame(width: Metric.textFieldWidth)
             }
-            HStack(alignment: .center) {
+            HStack(alignment: .top) {
                 Spacer()
                 Text("GitLab -> Edit Profile -> Access Tokens -> Create Personal access token(read_api)")
                     .font(.caption).foregroundStyle(.gray)
-                    .frame(width: Metric.textFieldWidth, alignment: .leading)
-                    .lineLimit(nil)
-            }.padding(.bottom, 10)
+                    .frame(width: Metric.textFieldWidth, height: 40, alignment: .topLeading)
+            }
             if groupInfo.hasLogin {
                 HStack {
                     Text("Subscribed Groups")
