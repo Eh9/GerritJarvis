@@ -17,6 +17,8 @@
 		8D50D3112BEF685800E8AC01 /* GitLabConfigs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D50D3102BEF685800E8AC01 /* GitLabConfigs.swift */; };
 		8D50D3172BF4932500E8AC01 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D3162BF4932500E8AC01 /* SDWebImageSwiftUI */; };
 		8D8E0C352BFB703400AAAD34 /* GitLabSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8D8E0C342BFB703400AAAD34 /* GitLabSwift */; };
+		8D8E0C382BFDDAC300AAAD34 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 8D8E0C372BFDDAC300AAAD34 /* ComposableArchitecture */; };
+		8D8E0C3A2BFDF4BC00AAAD34 /* GeneralPreferenceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E0C392BFDF4BC00AAAD34 /* GeneralPreferenceView.swift */; };
 		8DE9861E2BFB2DC4008A0BFD /* NotificationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DE9861D2BFB2DC4008A0BFD /* NotificationHandler.swift */; };
 		D207F0DD2272BBA5000EB2B4 /* Avatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D207F0DC2272BBA4000EB2B4 /* Avatar.swift */; };
 		D207F0E02272BE06000EB2B4 /* GerritResponseUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = D207F0DF2272BE06000EB2B4 /* GerritResponseUtils.swift */; };
@@ -70,6 +72,7 @@
 		8D50D3082BEF4C5700E8AC01 /* GitlabAccountSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitlabAccountSettingView.swift; sourceTree = "<group>"; };
 		8D50D30E2BEF670600E8AC01 /* GitLabService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitLabService.swift; sourceTree = "<group>"; };
 		8D50D3102BEF685800E8AC01 /* GitLabConfigs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitLabConfigs.swift; sourceTree = "<group>"; };
+		8D8E0C392BFDF4BC00AAAD34 /* GeneralPreferenceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralPreferenceView.swift; sourceTree = "<group>"; };
 		8DE9861D2BFB2DC4008A0BFD /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
 		D207F0DC2272BBA4000EB2B4 /* Avatar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Avatar.swift; sourceTree = "<group>"; };
 		D207F0DF2272BE06000EB2B4 /* GerritResponseUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GerritResponseUtils.swift; sourceTree = "<group>"; };
@@ -123,6 +126,7 @@
 				8D50D2EB2BEE038A00E8AC01 /* Alamofire in Frameworks */,
 				8D50D2F42BEE050500E8AC01 /* Settings in Frameworks */,
 				8D50D2FE2BEE074100E8AC01 /* LaunchAtLogin in Frameworks */,
+				8D8E0C382BFDDAC300AAAD34 /* ComposableArchitecture in Frameworks */,
 				8D50D2F12BEE047700E8AC01 /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -300,6 +304,7 @@
 			isa = PBXGroup;
 			children = (
 				D291E316228B15EC0033614B /* GeneralPreferenceViewController.swift */,
+				8D8E0C392BFDF4BC00AAAD34 /* GeneralPreferenceView.swift */,
 				D28FB8652309A7C100E00339 /* GeneralPreferenceViewController.xib */,
 			);
 			path = General;
@@ -417,6 +422,7 @@
 				8D50D2FD2BEE074100E8AC01 /* LaunchAtLogin */,
 				8D50D3162BF4932500E8AC01 /* SDWebImageSwiftUI */,
 				8D8E0C342BFB703400AAAD34 /* GitLabSwift */,
+				8D8E0C372BFDDAC300AAAD34 /* ComposableArchitecture */,
 			);
 			productName = GerritJarvis;
 			productReference = D2350ADF2180616A0002A17D /* GerritJarvis.app */;
@@ -461,6 +467,7 @@
 				8D50D2FC2BEE074100E8AC01 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */,
 				8D50D3152BF4932500E8AC01 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 				8D8E0C332BFB703400AAAD34 /* XCRemoteSwiftPackageReference "GitLabSwift" */,
+				8D8E0C362BFDDAC300AAAD34 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 			);
 			productRefGroup = D2350AE02180616A0002A17D /* Products */;
 			projectDirPath = "";
@@ -500,6 +507,7 @@
 				D2885990220BE633003495BC /* GerritService.swift in Sources */,
 				D26AC9AE22731A1500D65397 /* ReviewListCell.swift in Sources */,
 				D291E328228B34BD0033614B /* ReviewListEmptyView.swift in Sources */,
+				8D8E0C3A2BFDF4BC00AAAD34 /* GeneralPreferenceView.swift in Sources */,
 				D291E318228B15EC0033614B /* GeneralPreferenceViewController.swift in Sources */,
 				D207F0E02272BE06000EB2B4 /* GerritResponseUtils.swift in Sources */,
 				D297346D229B99F800C51043 /* MergedTriggerManager.swift in Sources */,
@@ -816,6 +824,14 @@
 				revision = b35dfada4150cfa7f86dd447600089d27e7d5832;
 			};
 		};
+		8D8E0C362BFDDAC300AAAD34 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 1.10.4;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -853,6 +869,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8D8E0C332BFB703400AAAD34 /* XCRemoteSwiftPackageReference "GitLabSwift" */;
 			productName = GitLabSwift;
+		};
+		8D8E0C372BFDDAC300AAAD34 /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8D8E0C362BFDDAC300AAAD34 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
