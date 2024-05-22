@@ -11,6 +11,7 @@ import Settings
 
 extension Settings.PaneIdentifier {
     static let general = Self("general")
+    static let general1 = Self("general1")
     static let account = Self("gerrit")
     static let gitlabAccount = Self("gitlab")
     static let blacklist = Self("blacklist")
@@ -31,6 +32,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     lazy var preferencesWindowController = SettingsWindowController(
         panes: [
             GeneralPreferenceViewController(),
+            Settings.Pane(
+                identifier: .general1,
+                title: "SwiftUIGeneral",
+                toolbarIcon: NSImage(named: NSImage.preferencesGeneralName)!
+            ) {
+                GeneralPreferenceView(store: .init(initialState: GeneralPreference.State(), reducer: {
+                    GeneralPreference()
+                }))
+            },
             AccountPreferenceViewController(),
             Settings.Pane(
                 identifier: .gitlabAccount,
