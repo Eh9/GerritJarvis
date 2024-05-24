@@ -47,7 +47,13 @@ struct GeneralPreference {
                 return .none
             case let .setRefreshFrequency(value):
                 state.refreshFrequency = value
-                return .none // TODO: Add Side Effect
+                // TODO: 确认通知是否属于 side effect
+                NotificationCenter.default.post(
+                    name: .RefreshFrequencyUpdatedNotification,
+                    object: nil,
+                    userInfo: nil
+                )
+                return .none
             }
         }
     }
@@ -68,27 +74,30 @@ struct GeneralPreferenceView: View {
     @State var store: StoreOf<GeneralPreference>
     var body: some View {
         VStack(alignment: .leading) {
-            Toggle("Launch At Login", isOn: $store.launchAtLogin.sending(\.setLaunchAtLogin))
+            Toggle(LocalizedStringKey("LaunchAtLogin"), isOn: $store.launchAtLogin.sending(\.setLaunchAtLogin))
             Toggle(
-                "Notify Merge Conflict",
+                LocalizedStringKey("NotifyConflict"),
                 isOn: $store.shouldNotifyMergeConflict.sending(\.setShouldNotifyMergeConflict)
             )
             Toggle(
-                "Notify New Incoming Review",
+                LocalizedStringKey("NotifyNewReview"),
                 isOn: $store.shouldNotifyNewIncomingReview.sending(\.setShouldNotifyNewIncomingReview)
             )
             Toggle(
-                "Display My Review Which Score -2 By Myself",
+                LocalizedStringKey("DisplayMySelfNoReadyReview"),
                 isOn: $store.showOurNotReadyReview.sending(\.setShowOurNotReadyReview)
             )
             Divider()
             HStack {
-                Picker("Refresh Frequency", selection: $store.refreshFrequency.sending(\.setRefreshFrequency)) {
+                Picker(
+                    LocalizedStringKey("RefreshFreq"),
+                    selection: $store.refreshFrequency.sending(\.setRefreshFrequency)
+                ) {
                     ForEach(store.options, id: \.self) { option in
                         Text(String(Int(option))).tag(option)
                     }
                 }.frame(width: 170)
-                Text("Minites")
+                Text(LocalizedStringKey("Minites"))
             }
         }.padding(.all).frame(width: 370)
     }

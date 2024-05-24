@@ -8,8 +8,14 @@
 
 import Cocoa
 import GitLabSwift
+import ComposableArchitecture
 
 class ReviewListDataController: NSObject {
+    @Shared(.shouldNotifyMergeConflict) var shouldNotifyMergeConflict = false
+    @Shared(.shouldNotifyNewIncomingReview) var shouldNotifyNewIncomingReview = false
+    @Shared(.showOurNotReadyReview) var showOurNotReadyReview = false
+    @Shared(.refreshFrequencyKey) var refreshFrequency = 3
+
     static let ReviewListUpdatedNotification = Notification.Name("ReviewListUpdatedNotification")
     static let ReviewListNewEventsNotification = Notification.Name("ReviewListNewEventsNotification")
     static let ReviewListNewEventsKey = "ReviewListNewEventsKey"
@@ -70,13 +76,13 @@ class ReviewListDataController: NSObject {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleAccountUpdated(notification:)),
-            name: ConfigManager.AccountUpdatedNotification,
+            name: .AccountUpdatedNotification,
             object: nil
         )
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleRefreshFrequencyUpdated(notification:)),
-            name: ConfigManager.RefreshFrequencyUpdatedNotification,
+            name: .RefreshFrequencyUpdatedNotification,
             object: nil
         )
     }
@@ -191,7 +197,7 @@ extension ReviewListDataController {
         if timer != nil {
             return
         }
-        let interval: TimeInterval = ConfigManager.shared.refreshFrequency * 60
+        let interval: TimeInterval = refreshFrequency * 60
         timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true, block: { _ in
             self.fetchReviewList()
         })
@@ -285,7 +291,7 @@ extension ReviewListDataController {
                 )
             }
 
-            if viewModel.isOurNotReady, !ConfigManager.shared.showOurNotReadyReview {
+            if viewModel.isOurNotReady, !showOurNotReadyReview {
                 continue
             }
             if change.isInBlacklist() {
@@ -417,7 +423,7 @@ extension ReviewListDataController: NSUserNotificationCenterDelegate {
     }
 
     private func notifyMergeConflict(_ change: Change) {
-        guard ConfigManager.shared.shouldNotifyMergeConflict else {
+        guard shouldNotifyMergeConflict else {
             return
         }
         postLocationNotification(
@@ -428,7 +434,7 @@ extension ReviewListDataController: NSUserNotificationCenterDelegate {
     }
 
     private func notifyNewChange(_ change: Change) {
-        guard ConfigManager.shared.shouldNotifyNewIncomingReview, change.hasNewEvent() else {
+        guard shouldNotifyNewIncomingReview, change.hasNewEvent() else {
             return
         }
         let name = change.owner?.name ?? ""
