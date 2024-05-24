@@ -83,15 +83,13 @@ class ConfigManager {
     }
 
     func appendBlacklist(type: String, value: String) {
+        guard !blacklist.contains(where: { $0.0 == type && $0.1 == value }) else { return }
         blacklist.append((type, value))
         saveBlacklist()
     }
 
-    func removeBlacklist(at index: Int) {
-        guard index >= 0, index < blacklist.count else {
-            return
-        }
-        blacklist.remove(at: index)
+    func removeBlacklist(type: String, value: String) {
+        blacklist.removeAll { $0.0 == type && $0.1 == value }
         saveBlacklist()
     }
 

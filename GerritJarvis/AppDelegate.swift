@@ -55,7 +55,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             ) {
                 GitLabAccountSettingView().environmentObject(GitLabConfigs.groupInfo)
             },
-            BlackListPreferenceViewController(),
+            Settings.Pane(
+                identifier: .blacklist,
+                title: "BlackList",
+                toolbarIcon: NSImage(named: NSImage.userName)!
+            ) {
+                GerritBlackListView(store: .init(initialState: GerritBlackList.State()) { GerritBlackList() })
+            },
         ]
     )
 
