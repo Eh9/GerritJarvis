@@ -11,8 +11,8 @@ import Settings
 
 extension Settings.PaneIdentifier {
     static let general = Self("general")
-    static let account = Self("gerrit")
-    static let gitlabAccount = Self("gitlab")
+    static let gerrit = Self("gerrit")
+    static let gitlab = Self("gitlab")
     static let blacklist = Self("blacklist")
 }
 
@@ -39,10 +39,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     GeneralPreference()
                 })
             },
-            AccountPreferenceViewController(),
             Settings.Pane(
-                identifier: .gitlabAccount,
-                title: "GitLabAccount",
+                identifier: .gerrit,
+                title: "Gerrit",
+                toolbarIcon: NSImage(named: NSImage.advancedName)!
+            ) {
+                GerritAccountPreferenceView(store: .init(initialState: GerritAccountPreference.State()) {
+                    GerritAccountPreference()
+                })
+            },
+            Settings.Pane(
+                identifier: .gitlab,
+                title: "GitLab",
                 toolbarIcon: NSImage(named: NSImage.advancedName)!
             ) {
                 GitLabAccountSettingView().environmentObject(GitLabConfigs.groupInfo)
@@ -114,7 +122,7 @@ extension AppDelegate {
         if ConfigManager.shared.hasUser() {
             preferencesWindowController.show(pane: .general)
         } else {
-            preferencesWindowController.show(pane: .account)
+            preferencesWindowController.show(pane: .gerrit)
         }
     }
 }

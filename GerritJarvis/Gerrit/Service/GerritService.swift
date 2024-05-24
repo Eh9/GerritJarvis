@@ -44,6 +44,31 @@ class GerritService {
         }
     }
 
+    func verifyAccount() async throws -> (Author?, Int?) {
+        let url = baseUrl + "/a/accounts/self/detail"
+        return try await withCheckedThrowingContinuation { continuation in
+            AF.request(url)
+                .authenticate(username: user, password: password, persistence: .none)
+                .validate(statusCode: 200..<300)
+                .responseData { response in
+                let statusCode = response.response?.statusCode
+                switch response.result {
+                case .success(_):
+                    guard let jsonString = GerritResponseUtils.filterResponse(response.data),
+                        let account = Mapper<Author>().map(JSONString: jsonString) else {
+                        continuation.resume(returning: (nil, statusCode))
+                        return
+                    }
+                    continuation.resume(returning: (account, statusCode))
+                    break
+                case .failure(_):
+                    continuation.resume(returning: (nil, statusCode))
+                    break
+                }
+            }
+        }
+    }
+
     func fetchReviewList(_ completion: @escaping ([Change]?) -> Void) {
         // 具体见 https://gerrit-review.googlesource.com/Documentation/user-search.html#_search_operators
         let query = "?q=(status:open+is:owner)OR(status:open+is:reviewer)&o=MESSAGES&o=DETAILED_ACCOUNTS&o=DETAILED_LABELS"

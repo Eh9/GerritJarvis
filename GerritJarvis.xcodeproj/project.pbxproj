@@ -19,6 +19,7 @@
 		8D8E0C352BFB703400AAAD34 /* GitLabSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8D8E0C342BFB703400AAAD34 /* GitLabSwift */; };
 		8D8E0C382BFDDAC300AAAD34 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 8D8E0C372BFDDAC300AAAD34 /* ComposableArchitecture */; };
 		8D8E0C3A2BFDF4BC00AAAD34 /* GeneralPreferenceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E0C392BFDF4BC00AAAD34 /* GeneralPreferenceView.swift */; };
+		8D8E0C3C2BFEE78300AAAD34 /* GerritAccountPreferenceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E0C3B2BFEE78300AAAD34 /* GerritAccountPreferenceView.swift */; };
 		8DE9861E2BFB2DC4008A0BFD /* NotificationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DE9861D2BFB2DC4008A0BFD /* NotificationHandler.swift */; };
 		D207F0DD2272BBA5000EB2B4 /* Avatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D207F0DC2272BBA4000EB2B4 /* Avatar.swift */; };
 		D207F0E02272BE06000EB2B4 /* GerritResponseUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = D207F0DF2272BE06000EB2B4 /* GerritResponseUtils.swift */; };
@@ -42,8 +43,6 @@
 		D291E3052287FB810033614B /* ConfigManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D291E3042287FB810033614B /* ConfigManager.swift */; };
 		D291E3072287FEB90033614B /* ReviewListDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D291E3062287FEB90033614B /* ReviewListDataController.swift */; };
 		D291E309228976610033614B /* GerritUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = D291E308228976610033614B /* GerritUtils.swift */; };
-		D291E31D228B172E0033614B /* AccountPreferenceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D291E31B228B172E0033614B /* AccountPreferenceViewController.swift */; };
-		D291E31E228B172E0033614B /* AccountPreferenceViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D291E31C228B172E0033614B /* AccountPreferenceViewController.xib */; };
 		D291E320228B2C300033614B /* PasteTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = D291E31F228B2C300033614B /* PasteTextField.swift */; };
 		D291E324228B343E0033614B /* ReviewListEmptyView.xib in Resources */ = {isa = PBXBuildFile; fileRef = D291E323228B343E0033614B /* ReviewListEmptyView.xib */; };
 		D291E328228B34BD0033614B /* ReviewListEmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D291E327228B34BD0033614B /* ReviewListEmptyView.swift */; };
@@ -71,6 +70,7 @@
 		8D50D30E2BEF670600E8AC01 /* GitLabService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitLabService.swift; sourceTree = "<group>"; };
 		8D50D3102BEF685800E8AC01 /* GitLabConfigs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitLabConfigs.swift; sourceTree = "<group>"; };
 		8D8E0C392BFDF4BC00AAAD34 /* GeneralPreferenceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralPreferenceView.swift; sourceTree = "<group>"; };
+		8D8E0C3B2BFEE78300AAAD34 /* GerritAccountPreferenceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GerritAccountPreferenceView.swift; sourceTree = "<group>"; };
 		8DE9861D2BFB2DC4008A0BFD /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
 		D207F0DC2272BBA4000EB2B4 /* Avatar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Avatar.swift; sourceTree = "<group>"; };
 		D207F0DF2272BE06000EB2B4 /* GerritResponseUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GerritResponseUtils.swift; sourceTree = "<group>"; };
@@ -98,8 +98,6 @@
 		D291E3042287FB810033614B /* ConfigManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigManager.swift; sourceTree = "<group>"; };
 		D291E3062287FEB90033614B /* ReviewListDataController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReviewListDataController.swift; sourceTree = "<group>"; };
 		D291E308228976610033614B /* GerritUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GerritUtils.swift; sourceTree = "<group>"; };
-		D291E31B228B172E0033614B /* AccountPreferenceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountPreferenceViewController.swift; sourceTree = "<group>"; };
-		D291E31C228B172E0033614B /* AccountPreferenceViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AccountPreferenceViewController.xib; sourceTree = "<group>"; };
 		D291E31F228B2C300033614B /* PasteTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteTextField.swift; sourceTree = "<group>"; };
 		D291E323228B343E0033614B /* ReviewListEmptyView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ReviewListEmptyView.xib; sourceTree = "<group>"; };
 		D291E327228B34BD0033614B /* ReviewListEmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewListEmptyView.swift; sourceTree = "<group>"; };
@@ -286,38 +284,13 @@
 		D291E314228B157F0033614B /* Preference */ = {
 			isa = PBXGroup;
 			children = (
-				D291E321228B33CD0033614B /* Manager */,
-				D291E315228B15C60033614B /* General */,
-				D291E31A228B161F0033614B /* Account */,
+				D291E3042287FB810033614B /* ConfigManager.swift */,
+				8D50D3082BEF4C5700E8AC01 /* GitlabAccountSettingView.swift */,
+				8D8E0C392BFDF4BC00AAAD34 /* GeneralPreferenceView.swift */,
+				8D8E0C3B2BFEE78300AAAD34 /* GerritAccountPreferenceView.swift */,
 				D2758AF523083CA400CD2DA7 /* BlackList */,
 			);
 			path = Preference;
-			sourceTree = "<group>";
-		};
-		D291E315228B15C60033614B /* General */ = {
-			isa = PBXGroup;
-			children = (
-				8D8E0C392BFDF4BC00AAAD34 /* GeneralPreferenceView.swift */,
-			);
-			path = General;
-			sourceTree = "<group>";
-		};
-		D291E31A228B161F0033614B /* Account */ = {
-			isa = PBXGroup;
-			children = (
-				D291E31B228B172E0033614B /* AccountPreferenceViewController.swift */,
-				8D50D3082BEF4C5700E8AC01 /* GitlabAccountSettingView.swift */,
-				D291E31C228B172E0033614B /* AccountPreferenceViewController.xib */,
-			);
-			path = Account;
-			sourceTree = "<group>";
-		};
-		D291E321228B33CD0033614B /* Manager */ = {
-			isa = PBXGroup;
-			children = (
-				D291E3042287FB810033614B /* ConfigManager.swift */,
-			);
-			path = Manager;
 			sourceTree = "<group>";
 		};
 		D291E322228B33FB0033614B /* Xib */ = {
@@ -475,7 +448,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D291E31E228B172E0033614B /* AccountPreferenceViewController.xib in Resources */,
 				D2BBB3802299862700288865 /* MergedTriggerWindowController.xib in Resources */,
 				D26AC9AC227319F100D65397 /* ReviewListCell.xib in Resources */,
 				D28FB85F23099F2200E00339 /* Localizable.strings in Resources */,
@@ -516,11 +488,11 @@
 				D288598E220BE3C1003495BC /* Message.swift in Sources */,
 				8D50D3092BEF4C5700E8AC01 /* GitlabAccountSettingView.swift in Sources */,
 				D2BBB38222998E0D00288865 /* PasteTextView.swift in Sources */,
+				8D8E0C3C2BFEE78300AAAD34 /* GerritAccountPreferenceView.swift in Sources */,
 				8D50D3112BEF685800E8AC01 /* GitLabConfigs.swift in Sources */,
 				D207F0DD2272BBA5000EB2B4 /* Avatar.swift in Sources */,
 				D288598D220BE3C1003495BC /* Author.swift in Sources */,
 				D288598C220BE3C1003495BC /* Change.swift in Sources */,
-				D291E31D228B172E0033614B /* AccountPreferenceViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
