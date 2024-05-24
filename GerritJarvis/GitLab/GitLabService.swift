@@ -45,6 +45,7 @@ class GitlabService {
         }
         var searchTexts = groups.compactMap(\.fullName)
         if let userName = GitLabConfigs.user.split(separator: "@").first { searchTexts.append(String(userName)) }
+        searchTexts = searchTexts.map { "@" + $0 }
 
         var mrs: [GLModel.MergeRequest] = []
         for text in searchTexts {
