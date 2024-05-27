@@ -13,7 +13,7 @@ class MergedTriggerWindowController: NSWindowController {
     @IBOutlet weak var nameLabel: NSTextField!
     @IBOutlet weak var reviewLabel: NSTextField!
     @IBOutlet weak var pathInputField: NSTextField!
-    @IBOutlet var commandTextView: PasteTextView!
+    @IBOutlet var commandTextView: NSTextView!
     @IBOutlet weak var saveButton: NSButton!
     @IBOutlet weak var loadingIndicator: NSProgressIndicator!
 

@@ -13,7 +13,6 @@ extension Settings.PaneIdentifier {
     static let general = Self("general")
     static let gerrit = Self("gerrit")
     static let gitlab = Self("gitlab")
-    static let blacklist = Self("blacklist")
 }
 
 @NSApplicationMain
@@ -54,13 +53,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 toolbarIcon: NSImage(named: NSImage.advancedName)!
             ) {
                 GitLabAccountSettingView().environmentObject(GitLabConfigs.groupInfo)
-            },
-            Settings.Pane(
-                identifier: .blacklist,
-                title: "BlackList",
-                toolbarIcon: NSImage(named: NSImage.userName)!
-            ) {
-                GerritBlackListView(store: .init(initialState: GerritBlackList.State()) { GerritBlackList() })
             },
         ]
     )

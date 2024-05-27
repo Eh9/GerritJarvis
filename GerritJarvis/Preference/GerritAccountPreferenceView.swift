@@ -16,6 +16,8 @@ struct GerritAccountPreference {
         var user = ConfigManager.shared.user ?? ""
         var token = ConfigManager.shared.password ?? ""
         var baseUrl = ConfigManager.shared.baseUrl ?? ""
+        var blacklist = GerritBlackList.State()
+
         @Presents var alert: AlertState<Action.Alert>?
     }
 
@@ -27,6 +29,7 @@ struct GerritAccountPreference {
         case alert(PresentationAction<Alert>)
         case showErrorAlert(LocalizedStringKey)
         case showLoginSuccessAlert(String?)
+        case blacklist(GerritBlackList.Action)
 
         @CasePathable
         enum Alert {
@@ -36,6 +39,9 @@ struct GerritAccountPreference {
     }
 
     var body: some Reducer<State, Action> {
+        Scope(state: \.blacklist, action: \.blacklist) {
+            GerritBlackList()
+        }
         Reduce { state, action in
             switch action {
             case let .setUser(value):
@@ -96,6 +102,8 @@ struct GerritAccountPreference {
                     TextState("\(name ?? state.user)," + NSLocalizedString("JarvisService", comment: ""))
                 }
                 return .none
+            case .blacklist:
+                return .none
             }
         }.ifLet(\.$alert, action: \.alert)
     }
@@ -153,6 +161,7 @@ struct GerritAccountPreferenceView: View {
                 Button(action: { store.send(.save) }, label: { Text("Save").frame(width: 80) })
                     .keyboardShortcut(.return)
             }
+            GerritBlackListView(store: store.scope(state: \.blacklist, action: \.blacklist))
         }
         .padding(.all).frame(width: 370)
         .alert($store.scope(state: \.alert, action: \.alert))
