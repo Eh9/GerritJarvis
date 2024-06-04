@@ -22,9 +22,15 @@ struct ReviewDisplay {
         var avatarUrl: String?
         var hasNewEvent: Bool = false
         var isMergeConflict: Bool = false
+
+        var projectHover: Bool = false
+        var branchHover: Bool = false
     }
 
     enum Action {
+        case onProjectHover(Bool)
+        case onBranchHover(Bool)
+        case didPressAuthor
         case didPressProject
         case didPressBranch
     }
@@ -33,6 +39,12 @@ struct ReviewDisplay {
         Reduce { state, action in
             switch action {
             // TODO: action
+            case let .onBranchHover(value):
+                state.branchHover = value
+                return .none
+            case let .onProjectHover(value):
+                state.projectHover = value
+                return .none
             default: return .none
             }
         }
@@ -67,7 +79,9 @@ struct ReviewCell: View {
                     Label {
                         Text(store.project)
                             .font(.system(size: 10, weight: .light))
-                            .foregroundStyle(.gray)
+                            .underline(store.projectHover)
+                            .foregroundStyle(store.projectHover ? .blue : .gray)
+                            .onHover { store.send(.onProjectHover($0)) }
                     } icon: {
                         Image(.folder)
                             .resizable()
@@ -80,7 +94,9 @@ struct ReviewCell: View {
                     Label {
                         Text(store.branch)
                             .font(.system(size: 10, weight: .light))
-                            .foregroundStyle(.gray)
+                            .underline(store.branchHover)
+                            .foregroundStyle(store.branchHover ? .blue : .gray)
+                            .onHover { store.send(.onBranchHover($0)) }
                     } icon: {
                         Image(.branch)
                             .resizable()
