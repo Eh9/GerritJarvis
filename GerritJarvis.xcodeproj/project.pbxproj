@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8D295C2E2C07468D003380EF /* ReviewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D295C2D2C07468D003380EF /* ReviewCell.swift */; };
 		8D50D2EB2BEE038A00E8AC01 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D2EA2BEE038A00E8AC01 /* Alamofire */; };
 		8D50D2EE2BEE044C00E8AC01 /* ObjectMapper in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D2ED2BEE044C00E8AC01 /* ObjectMapper */; };
 		8D50D2F12BEE047700E8AC01 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D2F02BEE047700E8AC01 /* SnapKit */; };
@@ -16,6 +17,8 @@
 		8D50D30F2BEF670600E8AC01 /* GitLabService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D50D30E2BEF670600E8AC01 /* GitLabService.swift */; };
 		8D50D3112BEF685800E8AC01 /* GitLabConfigs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D50D3102BEF685800E8AC01 /* GitLabConfigs.swift */; };
 		8D50D3172BF4932500E8AC01 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D3162BF4932500E8AC01 /* SDWebImageSwiftUI */; };
+		8D71C8122C0EC8B000EBCD87 /* GerritReviewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D71C8112C0EC8B000EBCD87 /* GerritReviewCell.swift */; };
+		8D71C8142C0F347600EBCD87 /* GitLabReviewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D71C8132C0F347600EBCD87 /* GitLabReviewCell.swift */; };
 		8D8E0C352BFB703400AAAD34 /* GitLabSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8D8E0C342BFB703400AAAD34 /* GitLabSwift */; };
 		8D8E0C382BFDDAC300AAAD34 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 8D8E0C372BFDDAC300AAAD34 /* ComposableArchitecture */; };
 		8D8E0C3A2BFDF4BC00AAAD34 /* GeneralPreferenceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E0C392BFDF4BC00AAAD34 /* GeneralPreferenceView.swift */; };
@@ -63,9 +66,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8D295C2D2C07468D003380EF /* ReviewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewCell.swift; sourceTree = "<group>"; };
 		8D50D3082BEF4C5700E8AC01 /* GitlabAccountSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitlabAccountSettingView.swift; sourceTree = "<group>"; };
 		8D50D30E2BEF670600E8AC01 /* GitLabService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitLabService.swift; sourceTree = "<group>"; };
 		8D50D3102BEF685800E8AC01 /* GitLabConfigs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitLabConfigs.swift; sourceTree = "<group>"; };
+		8D71C8112C0EC8B000EBCD87 /* GerritReviewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GerritReviewCell.swift; sourceTree = "<group>"; };
+		8D71C8132C0F347600EBCD87 /* GitLabReviewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitLabReviewCell.swift; sourceTree = "<group>"; };
 		8D8E0C392BFDF4BC00AAAD34 /* GeneralPreferenceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralPreferenceView.swift; sourceTree = "<group>"; };
 		8D8E0C3B2BFEE78300AAAD34 /* GerritAccountPreferenceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GerritAccountPreferenceView.swift; sourceTree = "<group>"; };
 		8D8E0C3E2C0091C900AAAD34 /* GerritBlackListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GerritBlackListView.swift; sourceTree = "<group>"; };
@@ -237,6 +243,9 @@
 			isa = PBXGroup;
 			children = (
 				D26AC9AD22731A1500D65397 /* ReviewListCell.swift */,
+				8D295C2D2C07468D003380EF /* ReviewCell.swift */,
+				8D71C8112C0EC8B000EBCD87 /* GerritReviewCell.swift */,
+				8D71C8132C0F347600EBCD87 /* GitLabReviewCell.swift */,
 				D291E327228B34BD0033614B /* ReviewListEmptyView.swift */,
 			);
 			path = View;
@@ -451,6 +460,8 @@
 				D291E2FB22858A620033614B /* ReviewScore.swift in Sources */,
 				D2885990220BE633003495BC /* GerritService.swift in Sources */,
 				D26AC9AE22731A1500D65397 /* ReviewListCell.swift in Sources */,
+				8D71C8142C0F347600EBCD87 /* GitLabReviewCell.swift in Sources */,
+				8D295C2E2C07468D003380EF /* ReviewCell.swift in Sources */,
 				D291E328228B34BD0033614B /* ReviewListEmptyView.swift in Sources */,
 				8D8E0C3A2BFDF4BC00AAAD34 /* GeneralPreferenceView.swift in Sources */,
 				D207F0E02272BE06000EB2B4 /* GerritResponseUtils.swift in Sources */,
@@ -466,6 +477,7 @@
 				D291E2F9228582060033614B /* ReviewListCellViewModel.swift in Sources */,
 				D2350AE32180616A0002A17D /* AppDelegate.swift in Sources */,
 				D288598E220BE3C1003495BC /* Message.swift in Sources */,
+				8D71C8122C0EC8B000EBCD87 /* GerritReviewCell.swift in Sources */,
 				8D50D3092BEF4C5700E8AC01 /* GitlabAccountSettingView.swift in Sources */,
 				8D8E0C3C2BFEE78300AAAD34 /* GerritAccountPreferenceView.swift in Sources */,
 				8D50D3112BEF685800E8AC01 /* GitLabConfigs.swift in Sources */,
@@ -620,6 +632,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = GerritJarvis/GerritJarvis.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
@@ -650,6 +663,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = GerritJarvis/GerritJarvis.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";

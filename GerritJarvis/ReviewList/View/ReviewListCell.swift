@@ -73,7 +73,13 @@ class ReviewListCell: NSTableCellView {
         commentLabel.isHidden = (viewModel.newComments == 0)
         commentImageView.isHidden = (viewModel.newComments == 0)
 
-        reviewImageView.image = NSImage(named: "Review\(viewModel.reviewScore.rawValue)")
+        reviewImageView.image = switch viewModel.reviewScore {
+        case .PlusTwo: NSImage(named: "ReviewPlus2")
+        case .PlusOne: NSImage(named: "ReviewPlus1")
+        case .Zero: NSImage(named: "")
+        case .MinusOne: NSImage(named: "ReviewMinus1")
+        case .MinusTwo: NSImage(named: "ReviewMinus2")
+        }
     }
 
     private func hasChinese(in string: String) -> Bool {

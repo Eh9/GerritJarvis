@@ -58,68 +58,61 @@ struct ReviewCell: View {
         HStack {
             VStack {
                 WebImage(url: URL(string: store.avatarUrl ?? "")) { $0.image ?? Image(nsImage: store.avatar ?? .init())
-                }
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 30, height: 30)
-                .clipShape(Circle())
-                ZStack(alignment: .topLeading) {
-                    Text(store.name).frame(maxWidth: 40).lineLimit(2)
-                        .font(.system(size: 10))
-                        .multilineTextAlignment(.center)
-                    if store.hasNewEvent {
-                        Circle()
-                            .foregroundStyle(.red)
-                            .frame(width: 4, height: 4)
+                }.resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 30, height: 30)
+                    .clipShape(Circle())
+                Text(store.name).frame(maxWidth: 40).lineLimit(2)
+                    .font(.system(size: 10))
+                    .multilineTextAlignment(.center)
+                    .overlay(alignment: .topLeading) {
+                        if store.hasNewEvent { Circle().foregroundStyle(.red).frame(width: 4, height: 4) }
                     }
-                }
             }.padding(.leading)
-            ZStack(alignment: .topTrailing) {
-                VStack(alignment: .leading, spacing: 0) {
-                    Label {
-                        Text(store.project)
-                            .font(.system(size: 10, weight: .light))
-                            .underline(store.projectHover)
-                            .foregroundStyle(store.projectHover ? .blue : .gray)
-                            .onHover { store.send(.onProjectHover($0)) }
-                    } icon: {
-                        Image(.folder)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 12, height: 12)
-                            .foregroundStyle(.gray)
-                    }.onTapGesture {
-                        store.send(.didPressProject)
-                    }.padding(.bottom, 0)
-                    Label {
-                        Text(store.branch)
-                            .font(.system(size: 10, weight: .light))
-                            .underline(store.branchHover)
-                            .foregroundStyle(store.branchHover ? .blue : .gray)
-                            .onHover { store.send(.onBranchHover($0)) }
-                    } icon: {
-                        Image(.branch)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 12, height: 12)
-                            .foregroundStyle(.gray)
-                    }.onTapGesture {
-                        store.send(.didPressBranch)
-                    }.padding(.top, 0)
-                    Spacer()
-                    Text(store.commitMessage).font(.system(size: 12)).lineLimit(2)
-                        .frame(height: 30)
-                        .foregroundStyle(.secondary)
-                }.padding(.vertical)
+            VStack(alignment: .leading, spacing: 0) {
+                Label {
+                    Text(store.project)
+                        .font(.system(size: 10, weight: .light))
+                        .underline(store.projectHover)
+                        .foregroundStyle(store.projectHover ? .blue : .gray)
+                        .onHover { store.send(.onProjectHover($0)) }
+                } icon: {
+                    Image(.folder)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 12, height: 12)
+                        .foregroundStyle(.gray)
+                }.onTapGesture {
+                    store.send(.didPressProject)
+                }.padding(.bottom, 0)
+                Label {
+                    Text(store.branch)
+                        .font(.system(size: 10, weight: .light))
+                        .underline(store.branchHover)
+                        .foregroundStyle(store.branchHover ? .blue : .gray)
+                        .onHover { store.send(.onBranchHover($0)) }
+                } icon: {
+                    Image(.branch)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 12, height: 12)
+                        .foregroundStyle(.gray)
+                }.onTapGesture {
+                    store.send(.didPressBranch)
+                }.padding(.top, 0)
+                Spacer()
+                Text(store.commitMessage).font(.system(size: 12)).lineLimit(2)
+                    .frame(height: 30)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.vertical)
+            .overlay(alignment: .topTrailing) {
                 if store.isMergeConflict {
                     Image(.conflict).resizable().frame(width: 20, height: 20).offset(y: 20)
                 }
             }
-            Divider()
-            Rectangle().foregroundStyle(.clear).frame(width: 44)
         }
-        .frame(width: 400, height: 66, alignment: .leading)
-        .padding(.init(top: 5, leading: 0, bottom: 5, trailing: 0))
+        .frame(width: 340, height: 66, alignment: .leading)
     }
 }
 
@@ -130,7 +123,7 @@ struct ReviewCell: View {
         name: "jessy pinkman",
         commitMessage: "ADD: new feature teststststs tststst stststststst",
         avatarUrl: "https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50",
-        hasNewEvent: false,
+        hasNewEvent: true,
         isMergeConflict: true
     )) {
         ReviewDisplay()
