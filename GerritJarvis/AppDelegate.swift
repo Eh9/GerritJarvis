@@ -22,8 +22,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     lazy var popover: NSPopover = {
         let pop = NSPopover()
         pop.behavior = .transient
-        pop.contentViewController = ReviewListViewController
-            .freshController(dataController: self.reviewListDataController)
+        pop.contentViewController = ReviewListView.vc
         return pop
     }()
 

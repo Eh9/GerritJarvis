@@ -12,7 +12,8 @@ import ComposableArchitecture
 @Reducer
 struct GitLabReviewDisplay {
     @ObservableState
-    struct State {
+    struct State: Identifiable {
+        var id: Int = 0
         var baseCell: ReviewDisplay.State
         var upvotes: Int = 0
         var downvotes: Int = 0
@@ -44,7 +45,9 @@ struct GitLabReviewCell: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            ReviewCell(store: store.scope(state: \.baseCell, action: \.baseCell))
+            WithPerceptionTracking {
+                ReviewCell(store: store.scope(state: \.baseCell, action: \.baseCell))
+            }
             Divider()
             Spacer()
             VStack {

@@ -12,7 +12,8 @@ import ComposableArchitecture
 @Reducer
 struct GerritReviewDisplay {
     @ObservableState
-    struct State {
+    struct State: Identifiable {
+        var id: String = ""
         var baseCell: ReviewDisplay.State
         var gerritScore: ReviewScore = .Zero
     }
@@ -40,33 +41,35 @@ struct GerritReviewCell: View {
     @State var store: StoreOf<GerritReviewDisplay>
 
     var body: some View {
-        HStack(spacing: 0) {
-            ReviewCell(store: store.scope(state: \.baseCell, action: \.baseCell))
-            Divider()
-            Spacer()
-            VStack {
-                switch store.gerritScore {
-                case .PlusTwo:
-                    Image(.reviewPlus2).resizable().frame(width: 40, height: 40)
-                case .PlusOne:
-                    Image(.reviewPlus1).resizable().frame(width: 40, height: 40)
-                case .MinusOne:
-                    Image(.reviewMinus1).resizable().frame(width: 40, height: 40)
-                case .MinusTwo:
-                    Image(.reviewMinus2).resizable().frame(width: 40, height: 40)
-                default: Text("")
+        WithPerceptionTracking {
+            HStack(spacing: 0) {
+                ReviewCell(store: store.scope(state: \.baseCell, action: \.baseCell))
+                Divider()
+                Spacer()
+                VStack {
+                    switch store.gerritScore {
+                    case .PlusTwo:
+                        Image(.reviewPlus2).resizable().frame(width: 40, height: 40)
+                    case .PlusOne:
+                        Image(.reviewPlus1).resizable().frame(width: 40, height: 40)
+                    case .MinusOne:
+                        Image(.reviewMinus1).resizable().frame(width: 40, height: 40)
+                    case .MinusTwo:
+                        Image(.reviewMinus2).resizable().frame(width: 40, height: 40)
+                    default: Text("")
+                    }
+                    Spacer()
+                    Button { store.send(.pressTrigger) } label: {
+                        Text("Trigger")
+                            .font(.system(size: 10))
+                            .offset(y: -1)
+                    }
                 }
                 Spacer()
-                Button { store.send(.pressTrigger) } label: {
-                    Text("Trigger")
-                        .font(.system(size: 10))
-                        .offset(y: -1)
-                }
             }
-            Spacer()
+            .frame(width: 420, height: 66)
+            .padding(.vertical, 5)
         }
-        .frame(width: 420, height: 66)
-        .padding(.vertical, 5)
     }
 }
 

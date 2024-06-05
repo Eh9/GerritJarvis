@@ -55,64 +55,69 @@ struct ReviewCell: View {
     @State var store: StoreOf<ReviewDisplay>
 
     var body: some View {
-        HStack {
-            VStack {
-                WebImage(url: URL(string: store.avatarUrl ?? "")) { $0.image ?? Image(nsImage: store.avatar ?? .init())
-                }.resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 30, height: 30)
-                    .clipShape(Circle())
-                Text(store.name).frame(maxWidth: 40).lineLimit(2)
-                    .font(.system(size: 10))
-                    .multilineTextAlignment(.center)
-                    .overlay(alignment: .topLeading) {
-                        if store.hasNewEvent { Circle().foregroundStyle(.red).frame(width: 4, height: 4) }
+        WithPerceptionTracking {
+            HStack {
+                VStack {
+                    WebImage(url: URL(string: store.avatarUrl ?? "")) { result in
+                        WithPerceptionTracking {
+                            result.image ?? Image(nsImage: store.avatar ?? .init())
+                        }
+                    }.resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 30, height: 30)
+                        .clipShape(Circle())
+                    Text(store.name).frame(maxWidth: 40).lineLimit(2)
+                        .font(.system(size: 10))
+                        .multilineTextAlignment(.center)
+                        .overlay(alignment: .topLeading) {
+                            if store.hasNewEvent { Circle().foregroundStyle(.red).frame(width: 4, height: 4) }
+                        }
+                }.padding(.leading)
+                VStack(alignment: .leading, spacing: 0) {
+                    Label {
+                        Text(store.project)
+                            .font(.system(size: 10, weight: .light))
+                            .underline(store.projectHover)
+                            .foregroundStyle(store.projectHover ? .blue : .gray)
+                            .onHover { store.send(.onProjectHover($0)) }
+                    } icon: {
+                        Image(.folder)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 12, height: 12)
+                            .foregroundStyle(.gray)
+                    }.onTapGesture {
+                        store.send(.didPressProject)
+                    }.padding(.bottom, 0)
+                    Label {
+                        Text(store.branch)
+                            .font(.system(size: 10, weight: .light))
+                            .underline(store.branchHover)
+                            .foregroundStyle(store.branchHover ? .blue : .gray)
+                            .onHover { store.send(.onBranchHover($0)) }
+                    } icon: {
+                        Image(.branch)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 12, height: 12)
+                            .foregroundStyle(.gray)
+                    }.onTapGesture {
+                        store.send(.didPressBranch)
+                    }.padding(.top, 0)
+                    Spacer()
+                    Text(store.commitMessage).font(.system(size: 12)).lineLimit(2)
+                        .frame(height: 30)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.vertical)
+                .overlay(alignment: .topTrailing) {
+                    if store.isMergeConflict {
+                        Image(.conflict).resizable().frame(width: 20, height: 20).offset(y: 20)
                     }
-            }.padding(.leading)
-            VStack(alignment: .leading, spacing: 0) {
-                Label {
-                    Text(store.project)
-                        .font(.system(size: 10, weight: .light))
-                        .underline(store.projectHover)
-                        .foregroundStyle(store.projectHover ? .blue : .gray)
-                        .onHover { store.send(.onProjectHover($0)) }
-                } icon: {
-                    Image(.folder)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 12, height: 12)
-                        .foregroundStyle(.gray)
-                }.onTapGesture {
-                    store.send(.didPressProject)
-                }.padding(.bottom, 0)
-                Label {
-                    Text(store.branch)
-                        .font(.system(size: 10, weight: .light))
-                        .underline(store.branchHover)
-                        .foregroundStyle(store.branchHover ? .blue : .gray)
-                        .onHover { store.send(.onBranchHover($0)) }
-                } icon: {
-                    Image(.branch)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 12, height: 12)
-                        .foregroundStyle(.gray)
-                }.onTapGesture {
-                    store.send(.didPressBranch)
-                }.padding(.top, 0)
-                Spacer()
-                Text(store.commitMessage).font(.system(size: 12)).lineLimit(2)
-                    .frame(height: 30)
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.vertical)
-            .overlay(alignment: .topTrailing) {
-                if store.isMergeConflict {
-                    Image(.conflict).resizable().frame(width: 20, height: 20).offset(y: 20)
                 }
             }
+            .frame(width: 340, height: 66, alignment: .leading)
         }
-        .frame(width: 340, height: 66, alignment: .leading)
     }
 }
 
