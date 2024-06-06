@@ -22,6 +22,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     lazy var popover: NSPopover = {
         let pop = NSPopover()
         pop.behavior = .transient
+        pop.contentSize = .init(width: 511, height: 557)
         pop.contentViewController = ReviewListView.vc
         return pop
     }()
@@ -116,10 +117,12 @@ extension AppDelegate {
 
 extension AppDelegate {
     func showPreference() {
-        if ConfigManager.shared.hasUser() {
-            preferencesWindowController.show(pane: .general)
-        } else {
-            preferencesWindowController.show(pane: .gerrit)
+        DispatchQueue.main.async { [self] in
+            if ConfigManager.shared.hasUser() {
+                preferencesWindowController.show(pane: .general)
+            } else {
+                preferencesWindowController.show(pane: .gerrit)
+            }
         }
     }
 }

@@ -22,6 +22,9 @@ struct GitLabReviewDisplay {
         // TODO: add target branch
     }
 
+    @Dependency(\.openURL) var openURL
+    @Dependency(\.gitlabService) var gitlabService
+
     enum Action {
         case baseCell(ReviewDisplay.Action)
     }
@@ -32,9 +35,23 @@ struct GitLabReviewDisplay {
         }
         Reduce { state, action in
             switch action {
-            case .baseCell:
-                return .none
-            default: return .none
+            case let .baseCell(baseCellAction):
+                let id = state.id
+                switch baseCellAction {
+                case .didPressAuthor: return .run { _ in
+                        guard let url = gitlabService.authorURL(id: id) else { return }
+                        await openURL(url)
+                    }
+                case .didPressBranch: return .run { _ in
+                        guard let url = gitlabService.branchURL(id: id) else { return }
+                        await openURL(url)
+                    }
+                case .didPressProject: return .run { _ in
+                        guard let url = gitlabService.projectURL(id: id) else { return }
+                        await openURL(url)
+                    }
+                default: return .none
+                }
             }
         }
     }
@@ -44,31 +61,30 @@ struct GitLabReviewCell: View {
     @State var store: StoreOf<GitLabReviewDisplay>
 
     var body: some View {
-        HStack(spacing: 0) {
-            WithPerceptionTracking {
+        WithPerceptionTracking {
+            HStack(spacing: 0) {
                 ReviewCell(store: store.scope(state: \.baseCell, action: \.baseCell))
-            }
-            Divider()
-            Spacer()
-            VStack {
-                Text("👍:\(store.upvotes)   👎:\(store.downvotes)")
-                    .lineLimit(1)
-                    .font(.system(size: 10))
+                Divider()
                 Spacer()
-                if store.approved {
-                    Image(systemName: "checkmark")
-                        .foregroundStyle(.green)
+                VStack {
+                    Text("👍:\(store.upvotes)   👎:\(store.downvotes)")
+                        .lineLimit(1)
+                        .font(.system(size: 10))
+                    Spacer()
+                    if store.approved {
+                        Image(systemName: "checkmark")
+                            .foregroundStyle(.green)
+                    }
+                    Spacer()
+                    if store.threadCount > 0 {
+                        Text("\(store.threadCount) unresolved threads")
+                            .font(.system(size: 8))
+                    }
                 }
                 Spacer()
-                if store.threadCount > 0 {
-                    Text("\(store.threadCount) unresolved threads")
-                        .font(.system(size: 8))
-                }
             }
-            Spacer()
+            .padding(.vertical, 5)
         }
-        .frame(width: 420, height: 66)
-        .padding(.vertical, 5)
     }
 }
 

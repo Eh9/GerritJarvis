@@ -23,14 +23,32 @@ struct GerritReviewDisplay {
         case pressTrigger
     }
 
+    @Dependency(\.openURL) var openURL
+    @Dependency(\.gerritClient) var gerritClient
+
     var body: some Reducer<State, Action> {
         Scope(state: \.baseCell, action: \.baseCell) {
             ReviewDisplay()
         }
         Reduce { state, action in
             switch action {
-            case .baseCell:
-                return .none
+            case let .baseCell(baseCellAction):
+                let id = state.id
+                switch baseCellAction {
+                case .didPressAuthor: return .run { _ in
+                        guard let url = gerritClient.authorURL(id: id) else { return }
+                        await openURL(url)
+                    }
+                case .didPressBranch: return .run { _ in
+                        guard let url = gerritClient.branchURL(id: id) else { return }
+                        await openURL(url)
+                    }
+                case .didPressProject: return .run { _ in
+                        guard let url = gerritClient.projectURL(id: id) else { return }
+                        await openURL(url)
+                    }
+                default: return .none
+                }
             default: return .none
             }
         }
@@ -67,7 +85,6 @@ struct GerritReviewCell: View {
                 }
                 Spacer()
             }
-            .frame(width: 420, height: 66)
             .padding(.vertical, 5)
         }
     }

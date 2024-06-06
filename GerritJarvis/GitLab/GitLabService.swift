@@ -9,6 +9,18 @@
 import Foundation
 import GitLabSwift
 import OSLog
+import ComposableArchitecture
+
+private enum GitLabServiceKey: DependencyKey {
+    static let liveValue: GitlabService = .shared
+}
+
+extension DependencyValues {
+    var gitlabService: GitlabService {
+        get { self[GitLabServiceKey.self] }
+        set { self[GitLabServiceKey.self] = newValue }
+    }
+}
 
 class GitlabService {
     static let shared = GitlabService()
@@ -27,6 +39,27 @@ class GitlabService {
     private var mrsNotTracking: [GLModel.MergeRequest] = []
     private var mrUpdateTime: [Int: Date?] = [:] // mr.id: updateDate
     private var hasFinishedFirstFetch = false
+
+    var showingMRs: [GitLabReviewDisplay.State] {
+        trackingMRs.map { mr in
+            GitLabReviewDisplay.State(
+                id: mr.id,
+                baseCell: ReviewDisplay.State(
+                    project: projectInfos[mr.project_id]?.name ?? "null_project",
+                    branch: mr.source_branch ?? "null_branch",
+                    name: mr.author?.name ?? "null_name",
+                    commitMessage: mr.title ?? "null_message",
+                    avatarUrl: mr.author?.avatar_url,
+                    hasNewEvent: false,
+                    isMergeConflict: false
+                ),
+                upvotes: mr.upvotes,
+                downvotes: mr.downvotes,
+                threadCount: discussionInfos[mr.id]?.count ?? 0,
+                approved: (approvalInfos[mr.id]?.approved_by?.map(\.user.name) ?? []).count > 0
+            )
+        }
+    }
 
     func setup() async {
         self.user = GitLabConfigs.user
@@ -296,6 +329,33 @@ class GitlabService {
             logger.error("\(error, privacy: .public)")
             return nil
         }
+    }
+}
+
+// MARK: - Jump URL getter
+
+extension GitlabService {
+    func mrURL(id: Int) -> URL? {
+        guard let mr = trackingMRs.first(where: { $0.id == id }) else { return nil }
+        return mr.web_url
+    }
+
+    func authorURL(id: Int) -> URL? {
+        guard let mr = trackingMRs.first(where: { $0.id == id }) else { return nil }
+        return .init(string: mr.author?.web_url ?? "")
+    }
+
+    func projectURL(id: Int) -> URL? {
+        guard let mr = trackingMRs.first(where: { $0.id == id }) else { return nil }
+        return projectInfos[mr.project_id]?.web_url
+    }
+
+    func branchURL(id: Int) -> URL? {
+        guard let mr = trackingMRs.first(where: { $0.id == id }),
+              let projectURL = projectInfos[mr.project_id]?.web_url,
+              let sourceBranch = mr.source_branch
+        else { return nil }
+        return projectURL.appendingPathComponent("commits/\(sourceBranch)")
     }
 }
 

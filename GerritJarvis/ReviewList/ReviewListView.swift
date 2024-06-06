@@ -19,54 +19,75 @@ struct ReviewList {
 
     enum Action {
         case `init`
-        case updateGerritChanges([Change])
+        case clearNewEvent
+        case refreshData
+        case clickAbout
+        case clickPreferences
+        case clickQuit
+        case updateGerritChanges
+        case updateGitLabMRs
         case gerritReviews(IdentifiedActionOf<GerritReviewDisplay>)
         case gitlabReviews(IdentifiedActionOf<GitLabReviewDisplay>)
         case didPressGerrit(id: GerritReviewDisplay.State.ID)
         case didPressGitLab(id: GitLabReviewDisplay.State.ID)
     }
 
-    @Dependency(\.gerritClient) var gerritClient: GerritClient
+    @Dependency(\.gerritClient) var gerritClient
+    @Dependency(\.gitlabService) var gitlabService
+    @Dependency(\.openURL) var openURL
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .`init`:
-                return .run { action in
-                    guard let changes = try? await gerritClient.fetchReviewList() else {
-                        return
-                    }
-                    await action(.updateGerritChanges(changes))
+                return updateDataSideEffect
+            case .clickAbout:
+                return .run { _ in
+                    await NSApplication.shared.orderFrontStandardAboutPanel()
                 }
-            case let .updateGerritChanges(changes):
-                state.gerritReviews = IdentifiedArrayOf(uniqueElements: changes.map {
-                    GerritReviewDisplay.State(
-                        id: $0.changeId!,
-                        baseCell: ReviewDisplay.State(
-                            project: $0.project ?? "null_project",
-                            branch: $0.branch ?? "null_branch",
-                            name: $0.owner?.displayName ?? $0.owner?.name ?? "null_name",
-                            commitMessage: $0.subject ?? "null_message",
-                            avatar: $0.owner?.avatarImage(),
-                            hasNewEvent: false, // TODO: implement this
-                            isMergeConflict: false // TODO: implement this
-                        ),
-                        gerritScore: $0.calculateReviewScore().0
-                    )
-                })
+            case .clickPreferences:
+                return .run { _ in
+                    if let delegate = await NSApplication.shared.delegate as? AppDelegate {
+                        delegate.showPreference()
+                    }
+                }
+            case .clickQuit:
+                return .run { _ in
+                    await NSApplication.shared.terminate(self)
+                }
+            case .updateGerritChanges:
+                state.gerritReviews = .init(uniqueElements: gerritClient.showingChanges)
+                return .none
+            case .updateGitLabMRs:
+                state.gitlabReviews = .init(uniqueElements: gitlabService.showingMRs)
                 return .none
             case let .didPressGerrit(id):
-                print(id)
-                return .none
+                print("didPressGerrit", id)
+                return .run { _ in
+                    guard let url = gerritClient.changeURL(id: id) else { return }
+                    await openURL(url)
+                }
             case let .didPressGitLab(id):
-                print(id)
-                return .none
+                print("didPressGitLab", id)
+                return .run { _ in
+                    guard let url = gitlabService.mrURL(id: id) else { return }
+                    await openURL(url)
+                }
             default: return .none
             }
         }.forEach(\.gerritReviews, action: \.gerritReviews) {
             GerritReviewDisplay()
         }.forEach(\.gitlabReviews, action: \.gitlabReviews) {
             GitLabReviewDisplay()
+        }
+    }
+
+    private var updateDataSideEffect: Effect<Action> {
+        .run { send in
+            await gerritClient.update()
+            await send(.updateGerritChanges)
+            await gitlabService.fetchMRs()
+            await send(.updateGitLabMRs)
         }
     }
 }
@@ -80,23 +101,60 @@ struct ReviewListView: View {
     }
 
     var body: some View {
+        headerView
         WithPerceptionTracking {
             List {
                 ForEachStore(store.scope(state: \.gerritReviews, action: \.gerritReviews)) { s in
-                    GerritReviewCell(store: s).onTapGesture {
+                    GerritReviewCell(store: s).contentShape(.rect).onTapGesture {
                         store.send(.didPressGerrit(id: s.id))
                     }
                 }
                 ForEachStore(store.scope(state: \.gitlabReviews, action: \.gitlabReviews)) { s in
-                    GitLabReviewCell(store: s).onTapGesture {
+                    GitLabReviewCell(store: s).contentShape(.rect).onTapGesture {
                         store.send(.didPressGitLab(id: s.id))
                     }
                 }
             }
         }
         .listStyle(.plain)
-        .frame(width: 420)
-        .frame(maxHeight: 600)
+    }
+
+    private var headerView: some View {
+        HStack(alignment: .center, spacing: 10) {
+            Spacer()
+            Image(.clear)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .foregroundStyle(.black.opacity(0.7))
+                .padding(.top, 6)
+                .onTapGesture {
+                    store.send(.clearNewEvent)
+                }
+            Image(.sync)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .foregroundStyle(.black.opacity(0.7))
+                .padding(.top, 6)
+                .onTapGesture {
+                    store.send(.refreshData)
+                }
+            Menu {
+                Button("About") { store.send(.clickAbout) }
+                Button("Preference") { store.send(.clickPreferences) }
+                Divider()
+                Button("Quit") { store.send(.clickQuit) }
+            } label: {
+                Image(.setting)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundStyle(.black.opacity(0.7))
+            }.menuStyle(.borderlessButton)
+                .padding(.top, 6)
+                .padding(.trailing)
+                .frame(width: 60)
+        }
+        .foregroundStyle(.background)
+        .frame(height: 30)
     }
 
     static var vc: NSViewController {

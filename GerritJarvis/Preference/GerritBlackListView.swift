@@ -58,25 +58,27 @@ struct GerritBlackListView: View {
     @State var store: StoreOf<GerritBlackList>
 
     var body: some View {
-        VStack {
-            Picker(selection: $store.currentType.sending(\.switchType)) {
-                Text("User BlackList").tag(ConfigManager.BlacklistType.User)
-                Text("Project BlackList").tag(ConfigManager.BlacklistType.Project)
-            } label: {}
-                .pickerStyle(SegmentedPickerStyle())
-            List {
-                ForEach(store.currentList, id: \.self) { item in
-                    Text(item).contextMenu {
-                        Button("Delete") { store.send(.deleteBlackListItem(item)) }
+        WithPerceptionTracking {
+            VStack {
+                Picker(selection: $store.currentType.sending(\.switchType)) {
+                    Text("User BlackList").tag(ConfigManager.BlacklistType.User)
+                    Text("Project BlackList").tag(ConfigManager.BlacklistType.Project)
+                } label: {}
+                    .pickerStyle(SegmentedPickerStyle())
+                List {
+                    ForEach(store.currentList, id: \.self) { item in
+                        Text(item).contextMenu {
+                            Button("Delete") { store.send(.deleteBlackListItem(item)) }
+                        }
                     }
+                }.frame(height: 100)
+                HStack {
+                    TextField("New Blacklist item", text: $store.currentInput.sending(\.setCurrentInput))
+                    Button("Add") { store.send(.addBlackListItem) }
                 }
-            }.frame(height: 100)
-            HStack {
-                TextField("New Blacklist item", text: $store.currentInput.sending(\.setCurrentInput))
-                Button("Add") { store.send(.addBlackListItem) }
             }
+            .padding(.all).frame(width: 370)
         }
-        .padding(.all).frame(width: 370)
     }
 }
 

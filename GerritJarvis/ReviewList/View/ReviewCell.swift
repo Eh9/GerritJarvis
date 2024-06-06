@@ -18,7 +18,7 @@ struct ReviewDisplay {
         var branch: String
         var name: String
         var commitMessage: String
-        var avatar: NSImage?
+        var avatarName: String?
         var avatarUrl: String?
         var hasNewEvent: Bool = false
         var isMergeConflict: Bool = false
@@ -60,19 +60,23 @@ struct ReviewCell: View {
                 VStack {
                     WebImage(url: URL(string: store.avatarUrl ?? "")) { result in
                         WithPerceptionTracking {
-                            result.image ?? Image(nsImage: store.avatar ?? .init())
+                            result.image ?? Image(nsImage: NSImage(named: .init(store.avatarName ?? "")) ?? .init())
+                                .resizable()
                         }
                     }.resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: 30, height: 30)
+                        .frame(width: 35, height: 35)
                         .clipShape(Circle())
                     Text(store.name).frame(maxWidth: 40).lineLimit(2)
-                        .font(.system(size: 10))
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundColor(.black.opacity(0.7))
                         .multilineTextAlignment(.center)
                         .overlay(alignment: .topLeading) {
                             if store.hasNewEvent { Circle().foregroundStyle(.red).frame(width: 4, height: 4) }
                         }
-                }.padding(.leading)
+                }.padding(.leading).onTapGesture {
+                    store.send(.didPressAuthor)
+                }
                 VStack(alignment: .leading, spacing: 0) {
                     Label {
                         Text(store.project)
@@ -107,16 +111,16 @@ struct ReviewCell: View {
                     Spacer()
                     Text(store.commitMessage).font(.system(size: 12)).lineLimit(2)
                         .frame(height: 30)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.black.opacity(0.6))
                 }
                 .padding(.vertical)
-                .overlay(alignment: .topTrailing) {
-                    if store.isMergeConflict {
-                        Image(.conflict).resizable().frame(width: 20, height: 20).offset(y: 20)
-                    }
+            }
+            .frame(width: 400, height: 70, alignment: .leading)
+            .overlay(alignment: .topTrailing) {
+                if store.isMergeConflict {
+                    Image(.conflict).resizable().frame(width: 25, height: 25)
                 }
             }
-            .frame(width: 340, height: 66, alignment: .leading)
         }
     }
 }
@@ -125,8 +129,8 @@ struct ReviewCell: View {
     ReviewCell(store: .init(initialState: ReviewDisplay.State(
         project: "tutor-ios-embedded",
         branch: "feature/test",
-        name: "jessy pinkman",
-        commitMessage: "ADD: new feature teststststs tststst stststststst",
+        name: "乔斯达",
+        commitMessage: "ADD: new feature teststststs tststst stststststst line line line line",
         avatarUrl: "https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50",
         hasNewEvent: true,
         isMergeConflict: true

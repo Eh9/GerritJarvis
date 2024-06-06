@@ -131,40 +131,42 @@ struct GerritAccountPreferenceView: View {
     @State var store: StoreOf<GerritAccountPreference>
 
     var body: some View {
-        VStack {
-            HStack(alignment: .center) {
-                Text("Gerrit Base URL")
-                Spacer()
-                TextField("baseUrl", text: $store.baseUrl.sending(\.setBaseUrl))
-                    .frame(width: Metric.textFieldWidth)
+        WithPerceptionTracking {
+            VStack {
+                HStack(alignment: .center) {
+                    Text("Gerrit Base URL")
+                    Spacer()
+                    TextField("baseUrl", text: $store.baseUrl.sending(\.setBaseUrl))
+                        .frame(width: Metric.textFieldWidth)
+                }
+                HStack(alignment: .center) {
+                    Text("User")
+                    Spacer()
+                    TextField("name", text: $store.user.sending(\.setUser))
+                        .frame(width: Metric.textFieldWidth)
+                }
+                HStack(alignment: .center) {
+                    Text("HTTP Password")
+                    Spacer()
+                    SecureField("token", text: $store.token.sending(\.setToken))
+                        .frame(width: Metric.textFieldWidth)
+                }
+                HStack(alignment: .top) {
+                    Spacer()
+                    Text("Gerrit -> Settings -> HTTP Credentials, Click \"Generate New Password\"")
+                        .font(.caption).foregroundStyle(.gray)
+                        .frame(width: Metric.textFieldWidth, height: 40, alignment: .topLeading)
+                }
+                HStack {
+                    Spacer()
+                    Button(action: { store.send(.save) }, label: { Text("Save").frame(width: 80) })
+                        .keyboardShortcut(.return)
+                }
+                GerritBlackListView(store: store.scope(state: \.blacklist, action: \.blacklist))
             }
-            HStack(alignment: .center) {
-                Text("User")
-                Spacer()
-                TextField("name", text: $store.user.sending(\.setUser))
-                    .frame(width: Metric.textFieldWidth)
-            }
-            HStack(alignment: .center) {
-                Text("HTTP Password")
-                Spacer()
-                SecureField("token", text: $store.token.sending(\.setToken))
-                    .frame(width: Metric.textFieldWidth)
-            }
-            HStack(alignment: .top) {
-                Spacer()
-                Text("Gerrit -> Settings -> HTTP Credentials, Click \"Generate New Password\"")
-                    .font(.caption).foregroundStyle(.gray)
-                    .frame(width: Metric.textFieldWidth, height: 40, alignment: .topLeading)
-            }
-            HStack {
-                Spacer()
-                Button(action: { store.send(.save) }, label: { Text("Save").frame(width: 80) })
-                    .keyboardShortcut(.return)
-            }
-            GerritBlackListView(store: store.scope(state: \.blacklist, action: \.blacklist))
+            .padding(.all).frame(width: 370)
+            .alert($store.scope(state: \.alert, action: \.alert))
         }
-        .padding(.all).frame(width: 370)
-        .alert($store.scope(state: \.alert, action: \.alert))
     }
 }
 

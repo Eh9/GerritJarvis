@@ -244,6 +244,17 @@ extension Author {
         return NSImage.init(named: NSImage.Name("Avatar\(index)"))
     }
 
+    func avatarImageName() -> String {
+        if isMe() {
+            return "AvatarMyself"
+        }
+        var index = 0
+        if let accountId = accountId {
+            index = accountId % 46
+        }
+        return "Avatar\(index)"
+    }
+
 }
 
 extension Message {

@@ -23,7 +23,7 @@ extension DependencyValues {
     }
 }
 
-struct GerritClient {
+class GerritClient {
     enum GerritError: Error {
         case decodeError
     }
@@ -33,6 +33,32 @@ struct GerritClient {
     @AppStorage("BaseUrlKey") var baseUrl: String = ""
 
     static let shared = GerritClient()
+
+    private var trackingChanges: [Change] = []
+
+    var showingChanges: [GerritReviewDisplay.State] {
+        trackingChanges.map {
+            GerritReviewDisplay.State(
+                id: $0.changeId!,
+                baseCell: ReviewDisplay.State(
+                    project: $0.project ?? "null_project",
+                    branch: $0.branch ?? "null_branch",
+                    name: $0.owner?.displayName ?? $0.owner?.name ?? "null_name",
+                    commitMessage: $0.subject ?? "null_message",
+                    avatarName: $0.owner?.avatarImageName(),
+                    hasNewEvent: false,
+                    isMergeConflict: !($0.mergeable ?? true)
+                ),
+                gerritScore: $0.calculateReviewScore().0
+            )
+        }
+    }
+
+    func update() async {
+        if let gerritChanges = try? await fetchReviewList() {
+            trackingChanges = gerritChanges
+        }
+    }
 
     func verifyAccount() async throws -> Author {
         let url = baseUrl + "/a/accounts/self/detail"
@@ -80,5 +106,45 @@ struct GerritClient {
             throw GerritError.decodeError
         }
         return model
+    }
+}
+
+// MARK: - Jump URL getter
+
+extension GerritClient {
+    func changeURL(id: String) -> URL? {
+        guard let change = trackingChanges.first(where: { $0.changeId == id }),
+              let number = change.number
+        else {
+            return nil
+        }
+        return URL(string: baseUrl + "/#/c/" + "\(number)")
+    }
+
+    func authorURL(id: String) -> URL? {
+        guard let change = trackingChanges.first(where: { $0.changeId == id }),
+              let emailEncoded = change.owner?.email?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else {
+            return nil
+        }
+        return URL(string: baseUrl + "/#/q/owner:" + emailEncoded)
+    }
+
+    func projectURL(id: String) -> URL? {
+        guard let change = trackingChanges.first(where: { $0.changeId == id }),
+              let project = change.project
+        else {
+            return nil
+        }
+        return URL(string: baseUrl + "/#/q/project:" + project)
+    }
+
+    func branchURL(id: String) -> URL? {
+        guard let projectURLString = projectURL(id: id)?.absoluteString,
+              let branch = trackingChanges.first(where: { $0.changeId == id })?.branch
+        else {
+            return nil
+        }
+        return URL(string: projectURLString + "+branch:" + branch)
     }
 }
