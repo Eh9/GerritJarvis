@@ -166,66 +166,7 @@ struct ReviewListView: View {
 
 #Preview {
     ReviewListView(
-        store: .init(initialState: ReviewList.State(
-            gerritReviews: [
-                .init(
-                    id: "1",
-                    baseCell: ReviewDisplay.State(
-                        project: "tutor-ios-embedded",
-                        branch: "feature/test1",
-                        name: "Walter White",
-                        commitMessage: "ADD: new feature very long long messages, say my name",
-                        avatarUrl: "https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50",
-                        hasNewEvent: false,
-                        isMergeConflict: true
-                    ),
-                    gerritScore: .PlusOne
-                ),
-                .init(
-                    id: "2",
-                    baseCell: ReviewDisplay.State(
-                        project: "tutor-ios-embedded",
-                        branch: "feature/test2",
-                        name: "Walter White",
-                        commitMessage: "ADD: new feature very long long messages, say my name",
-                        avatarUrl: "https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50",
-                        hasNewEvent: false,
-                        isMergeConflict: true
-                    ),
-                    gerritScore: .PlusOne
-                )
-            ],
-            gitlabReviews: [
-                .init(
-                    id: 1,
-                    baseCell: ReviewDisplay.State(
-                        project: "tutor-ios-embedded",
-                        branch: "feature/test3",
-                        name: "Walter White",
-                        commitMessage: "ADD: new feature very long long messages, now say my name",
-                        avatarUrl: "https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50",
-                        hasNewEvent: false,
-                        isMergeConflict: true
-                    ),
-                    threadCount: 99,
-                    approved: true
-                ),
-                .init(
-                    id: 2,
-                    baseCell: ReviewDisplay.State(
-                        project: "tutor-ios-embedded",
-                        branch: "feature/test4",
-                        name: "Walter White",
-                        commitMessage: "ADD: new feature very long long messages, now say my name",
-                        avatarUrl: "https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50",
-                        hasNewEvent: false,
-                        isMergeConflict: true
-                    ),
-                    threadCount: 99,
-                    approved: true
-                )
-            ]
-        )) {
+        store: .init(initialState: ReviewList.State()) {
             ReviewList()
         }
     )
