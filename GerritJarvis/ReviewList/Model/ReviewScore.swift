@@ -33,4 +33,14 @@ enum ReviewScore: String {
         }
         return result
     }
+
+    var imageIcon: ImageResource? {
+        switch self {
+        case .MinusOne: .reviewMinus1
+        case .MinusTwo: .reviewMinus2
+        case .PlusOne: .reviewPlus1
+        case .PlusTwo: .reviewPlus2
+        case .Zero: nil
+        }
+    }
 }

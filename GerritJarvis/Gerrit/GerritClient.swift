@@ -34,7 +34,7 @@ class GerritClient {
 
     static let shared = GerritClient()
 
-    private var trackingChanges: [Change] = []
+    private(set) var trackingChanges: [Change] = []
 
     var showingChanges: [GerritReviewDisplay.State] {
         trackingChanges.map {

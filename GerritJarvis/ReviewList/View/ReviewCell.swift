@@ -80,7 +80,7 @@ struct ReviewCell: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Label {
                         Text(store.project)
-                            .font(.system(size: 10, weight: .light))
+                            .font(.system(size: 11, weight: .light))
                             .underline(store.projectHover)
                             .foregroundStyle(store.projectHover ? .blue : .gray)
                             .onHover { store.send(.onProjectHover($0)) }
@@ -88,14 +88,14 @@ struct ReviewCell: View {
                         Image(.folder)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(width: 12, height: 12)
+                            .frame(width: 14, height: 14)
                             .foregroundStyle(.gray)
                     }.onTapGesture {
                         store.send(.didPressProject)
                     }.padding(.bottom, 0)
                     Label {
                         Text(store.branch)
-                            .font(.system(size: 10, weight: .light))
+                            .font(.system(size: 11, weight: .light))
                             .underline(store.branchHover)
                             .foregroundStyle(store.branchHover ? .blue : .gray)
                             .onHover { store.send(.onBranchHover($0)) }
@@ -103,7 +103,7 @@ struct ReviewCell: View {
                         Image(.branch)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(width: 12, height: 12)
+                            .frame(width: 14, height: 14)
                             .foregroundStyle(.gray)
                     }.onTapGesture {
                         store.send(.didPressBranch)

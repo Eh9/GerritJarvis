@@ -19,6 +19,8 @@ extension Settings.PaneIdentifier {
 class AppDelegate: NSObject, NSApplicationDelegate {
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
+    private var triggerController: MergedTriggerWindowController?
+
     lazy var popover: NSPopover = {
         let pop = NSPopover()
         pop.behavior = .transient
@@ -117,13 +119,24 @@ extension AppDelegate {
 
 extension AppDelegate {
     func showPreference() {
-        DispatchQueue.main.async { [self] in
-            if ConfigManager.shared.hasUser() {
-                preferencesWindowController.show(pane: .general)
-            } else {
-                preferencesWindowController.show(pane: .gerrit)
-            }
+        if ConfigManager.shared.hasUser() {
+            preferencesWindowController.show(pane: .general)
+        } else {
+            preferencesWindowController.show(pane: .gerrit)
         }
+    }
+}
+
+// MARK: - GerritTrigger
+
+extension AppDelegate {
+    func showGerritTrigger(change: Change) {
+        if triggerController != nil {
+            triggerController?.close()
+        }
+        triggerController = MergedTriggerWindowController(windowNibName: "MergedTriggerWindowController")
+        triggerController?.change = change
+        triggerController?.showWindow(NSApplication.shared.delegate)
     }
 }
 

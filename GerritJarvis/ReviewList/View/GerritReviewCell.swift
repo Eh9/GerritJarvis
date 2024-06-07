@@ -49,7 +49,15 @@ struct GerritReviewDisplay {
                     }
                 default: return .none
                 }
-            default: return .none
+            case .pressTrigger:
+                let id = state.id
+                return .run { _ in
+                    if let delegate = await NSApplication.shared.delegate as? AppDelegate,
+                       let change = gerritClient.trackingChanges.first(where: { $0.changeId == id })
+                    {
+                        DispatchQueue.main.async { delegate.showGerritTrigger(change: change) }
+                    }
+                }
             }
         }
     }
@@ -65,16 +73,10 @@ struct GerritReviewCell: View {
                 Divider()
                 Spacer()
                 VStack {
-                    switch store.gerritScore {
-                    case .PlusTwo:
-                        Image(.reviewPlus2).resizable().frame(width: 40, height: 40)
-                    case .PlusOne:
-                        Image(.reviewPlus1).resizable().frame(width: 40, height: 40)
-                    case .MinusOne:
-                        Image(.reviewMinus1).resizable().frame(width: 40, height: 40)
-                    case .MinusTwo:
-                        Image(.reviewMinus2).resizable().frame(width: 40, height: 40)
-                    default: Text("")
+                    if let reviewScoreImage = store.gerritScore.imageIcon {
+                        Image(reviewScoreImage).resizable().frame(width: 40, height: 40)
+                    } else {
+                        Text("")
                     }
                     Spacer()
                     Button { store.send(.pressTrigger) } label: {

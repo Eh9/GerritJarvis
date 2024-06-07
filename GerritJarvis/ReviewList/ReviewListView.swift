@@ -48,7 +48,7 @@ struct ReviewList {
             case .clickPreferences:
                 return .run { _ in
                     if let delegate = await NSApplication.shared.delegate as? AppDelegate {
-                        delegate.showPreference()
+                        DispatchQueue.main.async { delegate.showPreference() }
                     }
                 }
             case .clickQuit:
@@ -62,13 +62,11 @@ struct ReviewList {
                 state.gitlabReviews = .init(uniqueElements: gitlabService.showingMRs)
                 return .none
             case let .didPressGerrit(id):
-                print("didPressGerrit", id)
                 return .run { _ in
                     guard let url = gerritClient.changeURL(id: id) else { return }
                     await openURL(url)
                 }
             case let .didPressGitLab(id):
-                print("didPressGitLab", id)
                 return .run { _ in
                     guard let url = gitlabService.mrURL(id: id) else { return }
                     await openURL(url)
@@ -101,22 +99,38 @@ struct ReviewListView: View {
     }
 
     var body: some View {
-        headerView
         WithPerceptionTracking {
-            List {
-                ForEachStore(store.scope(state: \.gerritReviews, action: \.gerritReviews)) { s in
-                    GerritReviewCell(store: s).contentShape(.rect).onTapGesture {
-                        store.send(.didPressGerrit(id: s.id))
-                    }
-                }
-                ForEachStore(store.scope(state: \.gitlabReviews, action: \.gitlabReviews)) { s in
-                    GitLabReviewCell(store: s).contentShape(.rect).onTapGesture {
-                        store.send(.didPressGitLab(id: s.id))
-                    }
-                }
+            headerView
+            if #available(macOS 13.0, *) {
+                listView.scrollIndicators(.never)
+            } else {
+                listView
             }
         }
+    }
+
+    private var listView: some View {
+        List {
+            gerritReviewsView
+            gitlabReviewsView
+        }
         .listStyle(.plain)
+    }
+
+    private var gerritReviewsView: some View {
+        ForEachStore(store.scope(state: \.gerritReviews, action: \.gerritReviews)) { s in
+            GerritReviewCell(store: s).contentShape(.rect).onTapGesture {
+                store.send(.didPressGerrit(id: s.id))
+            }
+        }
+    }
+
+    private var gitlabReviewsView: some View {
+        ForEachStore(store.scope(state: \.gitlabReviews, action: \.gitlabReviews)) { s in
+            GitLabReviewCell(store: s).contentShape(.rect).onTapGesture {
+                store.send(.didPressGitLab(id: s.id))
+            }
+        }
     }
 
     private var headerView: some View {
