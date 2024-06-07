@@ -15,7 +15,7 @@ enum ReviewScore: String {
     case MinusOne = "-1"
     case MinusTwo = "-2"
 
-    static private let priorities: [ReviewScore] = [
+    private static let priorities: [ReviewScore] = [
         .Zero,
         .PlusOne,
         .MinusOne,
