@@ -32,7 +32,7 @@ class GitlabService {
 
     private(set) var trackingMRs: [GLModel.MergeRequest] = []
     private(set) var projectInfos: [Int: GLModel.Project] = [:] // projectID: project
-    private(set) var discussionInfos: [Int: [GLModel.Discussion.Note]] = [:] // mr.id: notes
+    private(set) var discussionInfos: [Int: [GLModel.Discussion]] = [:] // mr.id: notes
     private(set) var approvalInfos: [Int: GLModel.MergeRequestApprovals] = [:] // mr.id: approvalInfo
     private(set) var mrsUpdated: [GLModel.MergeRequest] = []
 
@@ -42,11 +42,15 @@ class GitlabService {
 
     var showingMRs: [GitLabReviewDisplay.State] {
         trackingMRs.map { mr in
-            GitLabReviewDisplay.State(
+            let unResolvedThreads = discussionInfos[mr.id]?.filter { info in
+                info.notes.contains { $0.resolvable == true && $0.resolved == false }
+            }
+            return GitLabReviewDisplay.State(
                 id: mr.id,
                 baseCell: ReviewDisplay.State(
                     project: projectInfos[mr.project_id]?.name ?? "null_project",
                     branch: mr.source_branch ?? "null_branch",
+                    targetBranch: mr.target_branch,
                     name: mr.author?.name ?? "null_name",
                     commitMessage: mr.title ?? "null_message",
                     avatarUrl: mr.author?.avatar_url,
@@ -55,7 +59,7 @@ class GitlabService {
                 ),
                 upvotes: mr.upvotes,
                 downvotes: mr.downvotes,
-                threadCount: discussionInfos[mr.id]?.count ?? 0,
+                threadCount: unResolvedThreads?.count ?? 0,
                 approved: (approvalInfos[mr.id]?.approved_by?.map(\.user.name) ?? []).count > 0
             )
         }
@@ -110,7 +114,7 @@ class GitlabService {
             if discussionInfos[mr.id] == nil,
                let discussions = await fetchMRDiscussions(id: mr.iid, projectId: mr.project_id)
             {
-                discussionInfos[mr.id] = discussions.flatMap(\.notes).filter { $0.system == false }
+                discussionInfos[mr.id] = discussions.filter { $0.isNotSystem }
             }
             if approvalInfos[mr.id] == nil,
                let approvals = await fetchMRApprovals(id: mr.iid, projectId: mr.project_id)
@@ -194,15 +198,13 @@ class GitlabService {
         // discusstion updated
         for mr in mrsUpdated {
             guard let discussions = await fetchMRDiscussions(id: mr.iid, projectId: mr.project_id) else { continue }
-            let notes = discussions.flatMap(\.notes).filter { $0.system == false }
-            defer { discussionInfos[mr.id] = notes }
-            guard let oldNotes = discussionInfos[mr.id] else { continue }
-            let updateNotes: [GLModel.Discussion.Note] = notes.compactMap { note in
+            let newInfo = discussions.filter { $0.isNotSystem }
+            defer { discussionInfos[mr.id] = newInfo }
+            guard let oldNotes = discussionInfos[mr.id]?.flatMap(\.notes) else { continue }
+            let updateNotes: [GLModel.Discussion.Note] = newInfo.flatMap(\.notes).compactMap { note in
                 if let oldNote = oldNotes.first(where: { $0.id == note.id }),
                    oldNote.updated_at == note.updated_at
-                {
-                    return nil
-                }
+                { return nil }
                 return note
             }.sorted { $0.updated_at! < $1.updated_at! }
             // 如果都是自己的 comment，则不需要通知
@@ -362,6 +364,12 @@ extension GitlabService {
 private extension GLModel.User {
     var isNotMe: Bool {
         id != GitLabConfigs.userInfo?.id
+    }
+}
+
+private extension GLModel.Discussion {
+    var isNotSystem: Bool {
+        notes.contains { $0.system == false }
     }
 }
 

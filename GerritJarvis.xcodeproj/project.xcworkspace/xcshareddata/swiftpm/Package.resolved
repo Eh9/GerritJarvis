@@ -24,7 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Eh9/GitLabSwift",
       "state" : {
-        "revision" : "b35dfada4150cfa7f86dd447600089d27e7d5832"
+        "branch" : "main",
+        "revision" : "faba64e226f04a4204253d18de7d40623a0c02c1"
       }
     },
     {

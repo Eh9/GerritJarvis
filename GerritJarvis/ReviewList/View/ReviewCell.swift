@@ -16,6 +16,7 @@ struct ReviewDisplay {
     struct State {
         var project: String
         var branch: String
+        var targetBranch: String?
         var name: String
         var commitMessage: String
         var avatarName: String?
@@ -25,6 +26,14 @@ struct ReviewDisplay {
 
         var projectHover: Bool = false
         var branchHover: Bool = false
+
+        var branchDescription: String {
+            if let targetBranch = targetBranch {
+                return "\(branch) -> \(targetBranch)"
+            } else {
+                return branch
+            }
+        }
     }
 
     enum Action {
@@ -94,7 +103,7 @@ struct ReviewCell: View {
                         store.send(.didPressProject)
                     }.padding(.bottom, 0)
                     Label {
-                        Text(store.branch)
+                        Text(store.branchDescription)
                             .font(.system(size: 11, weight: .light))
                             .underline(store.branchHover)
                             .foregroundStyle(store.branchHover ? .blue : .gray)
