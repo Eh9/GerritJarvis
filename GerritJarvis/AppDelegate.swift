@@ -8,6 +8,7 @@
 
 import Cocoa
 import Settings
+import ComposableArchitecture
 
 extension Settings.PaneIdentifier {
     static let general = Self("general")
@@ -20,6 +21,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
     private var triggerController: MergedTriggerWindowController?
+
+    @Dependency(\.jarvisClient) var jarvisClient
 
     lazy var popover: NSPopover = {
         let pop = NSPopover()
@@ -59,7 +62,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         ]
     )
 
-    var reviewListDataController = ReviewListDataController()
+    // var reviewListDataController = ReviewListDataController()
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
@@ -69,12 +72,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(reviewListUpdated(notification:)),
-            name: ReviewListDataController.ReviewListNewEventsNotification,
+            name: ReviewListNewEvents.notificationName,
             object: nil
         )
 
         if ConfigManager.shared.hasUser() {
-            reviewListDataController.setupAccount()
+            Task { await jarvisClient.setupAccount() }
         }
         UserNotificationHandler.shared.setup()
     }
@@ -142,15 +145,16 @@ extension AppDelegate {
 
 // MARK: - Event Count
 
+enum ReviewListNewEvents {
+    static let key = "ReviewListNewEvents"
+    static let notificationName = Notification.Name("ReviewListNewEvents")
+}
+
 extension AppDelegate {
     @objc func reviewListUpdated(notification: Notification?) {
-        guard let userInfo = notification?.userInfo,
-              let newEvents = userInfo[ReviewListDataController.ReviewListNewEventsKey] as? Int
-        else {
-            updateEventCount(0)
-            return
+        DispatchQueue.main.async { [self] in
+            updateEventCount(jarvisClient.newEventCount)
         }
-        updateEventCount(newEvents)
     }
 
     private func updateEventCount(_ count: Int) {

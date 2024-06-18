@@ -43,4 +43,15 @@ enum ReviewScore: String {
         case .Zero: nil
         }
     }
+
+    var imageFilePath: URL? {
+        let filename = switch self {
+        case .MinusOne: "ReviewMinus1"
+        case .MinusTwo: "ReviewMinus2"
+        case .PlusOne: "ReviewPlus1"
+        case .PlusTwo: "ReviewPlus2"
+        case .Zero: ""
+        }
+        return Bundle.main.url(forResource: filename, withExtension: "png")
+    }
 }

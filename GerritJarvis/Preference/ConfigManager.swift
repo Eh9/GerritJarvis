@@ -11,8 +11,10 @@ import Cocoa
 extension Notification.Name {
     static let RefreshFrequencyUpdatedNotification = Notification.Name("RefreshFrequencyUpdatedNotification")
     static let AccountUpdatedNotification = Notification.Name("AccountUpdatedNotification")
+    static let ReviewListUpdatedNotification = Notification.Name("ReviewListUpdatedNotification")
 }
 
+// TODO: merge to JarvisClient
 class ConfigManager {
     // 单位为分钟，值必须在 General Preference 的 frequency 选择列表中
     static let DefaultRefreshFrequency: TimeInterval = 3

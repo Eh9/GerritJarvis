@@ -46,6 +46,7 @@ struct UserDefaultsValue<T: Codable> {
     }
 }
 
+// TODO: 使用 MainActor 重构，避免 Data Race
 enum GitLabConfigs {
     static var userInfo: GLModel.User?
     static var groups: [GLModel.Group] = []
@@ -63,12 +64,12 @@ enum GitLabConfigs {
 
     // ui observable
     static var groupInfo: ObservedGroupsInfo = .init()
+
+    @MainActor
     static func setupGroupInfo() {
-        DispatchQueue.main.async {
-            groupInfo.groups = groups
-            groupInfo.observedGroups = observedGroups
-            groupInfo.hasLogin = hasSetup
-        }
+        groupInfo.groups = groups
+        groupInfo.observedGroups = observedGroups
+        groupInfo.hasLogin = hasSetup
     }
 }
 

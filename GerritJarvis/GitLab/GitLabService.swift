@@ -22,9 +22,21 @@ extension DependencyValues {
     }
 }
 
+struct NewEventType: OptionSet {
+    let rawValue: Int
+
+    static let comment = NewEventType(rawValue: 1 << 0)
+    static let approval = NewEventType(rawValue: 1 << 1)
+    static let newMR = NewEventType(rawValue: 1 << 2)
+
+    static let noneNewEvent: NewEventType = []
+}
+
 class GitlabService {
     static let shared = GitlabService()
     private init() {}
+
+    @Shared(.shouldNotifyNewIncomingReview) var shouldNotifyNewIncomingReview = false
 
     private var user: String!
     private var gitlab: GLApi!
@@ -36,9 +48,12 @@ class GitlabService {
     private(set) var approvalInfos: [Int: GLModel.MergeRequestApprovals] = [:] // mr.id: approvalInfo
     private(set) var mrsUpdated: [GLModel.MergeRequest] = []
 
+    private var iWannaKnowEverything = false
+
     private var mrsNotTracking: [GLModel.MergeRequest] = []
     private var mrUpdateTime: [Int: Date?] = [:] // mr.id: updateDate
     private var hasFinishedFirstFetch = false
+    private var mrsNewEventInfo: [Int: NewEventType] = [:]
 
     var showingMRs: [GitLabReviewDisplay.State] {
         trackingMRs.map { mr in
@@ -54,8 +69,8 @@ class GitlabService {
                     name: mr.author?.name ?? "null_name",
                     commitMessage: mr.title ?? "null_message",
                     avatarUrl: mr.author?.avatar_url,
-                    hasNewEvent: false,
-                    isMergeConflict: false
+                    hasNewEvent: hasNewEvent(mr),
+                    isMergeConflict: mr.has_conflicts ?? false
                 ),
                 upvotes: mr.upvotes,
                 downvotes: mr.downvotes,
@@ -63,6 +78,10 @@ class GitlabService {
                 approved: (approvalInfos[mr.id]?.approved_by?.map(\.user.name) ?? []).count > 0
             )
         }
+    }
+
+    var newEventCount: Int {
+        trackingMRs.reduce(0) { result, mr in result + (hasNewEvent(mr) ? 1 : 0) }
     }
 
     func setup() async {
@@ -77,14 +96,9 @@ class GitlabService {
     func fetchMRs() async {
         guard !user.isEmpty else { return }
         await setupUserInfo()
-        let groups = GitLabConfigs.groupInfo.groups.filter {
-            GitLabConfigs.groupInfo.observedGroups.contains($0.id)
-        }
-        var searchTexts = groups.compactMap(\.fullName)
-        if let userName = GitLabConfigs.user.split(separator: "@").first { searchTexts.append(String(userName)) }
 
         var mrs: [GLModel.MergeRequest] = []
-        for text in searchTexts {
+        for text in concernedTexts {
             // TODO: fetch MRs in parallel
             if let groupMRs = await fetchMRList(searchText: text) {
                 mrs.append(contentsOf: groupMRs)
@@ -124,6 +138,7 @@ class GitlabService {
         }
         await notityNotTrackingMR()
         await notifyUpdatedMR()
+        // TODO: repeat notify when fetch error
         hasFinishedFirstFetch = true
     }
 
@@ -140,21 +155,39 @@ class GitlabService {
         GitLabConfigs.userInfo = nil
         GitLabConfigs.user = ""
         GitLabConfigs.hasSetup = GitLabConfigs.userInfo != nil
-        GitLabConfigs.setupGroupInfo()
+        Task { await GitLabConfigs.setupGroupInfo() }
         hasFinishedFirstFetch = false
+        mrsNewEventInfo = [:]
+    }
+
+    private var concernedTexts: [String] {
+        var concernedTexts = GitLabConfigs.groupInfo.groups.filter {
+            GitLabConfigs.groupInfo.observedGroups.contains($0.id)
+        }.compactMap(\.fullName)
+        if let userName = GitLabConfigs.user.split(separator: "@").first { concernedTexts.append(String(userName)) }
+        return concernedTexts.map { "@" + $0 }
+    }
+
+    private func hasNewEvent(_ mr: GLModel.MergeRequest?) -> Bool {
+        guard let mr, let info = mrsNewEventInfo[mr.id] else { return false }
+        return info != .noneNewEvent
     }
 
     private func notifyNewMR(newMrs: [GLModel.MergeRequest]) {
-        guard hasFinishedFirstFetch else { return }
+        guard hasFinishedFirstFetch, shouldNotifyNewIncomingReview else { return }
         newMrs.forEach { newMr in
             guard !trackingMRs.contains(where: { $0.id == newMr.id }),
                   newMr.author?.isNotMe == true
             else { return }
+            if mrsNewEventInfo[newMr.id] == nil { mrsNewEventInfo[newMr.id] = .noneNewEvent }
+            mrsNewEventInfo[newMr.id]?.insert(.newMR)
             UserNotificationHandler.shared.sendNotification(
                 title: "\(newMr.title ?? "")",
                 body: "New Review MergeRequest from \(newMr.author?.name ?? "null_name")",
                 url: newMr.web_url.absoluteString
-            )
+            ) { [weak self] in
+                self?.mrsNewEventInfo[newMr.id]?.remove(.newMR)
+            }
         }
     }
 
@@ -198,23 +231,33 @@ class GitlabService {
         // discusstion updated
         for mr in mrsUpdated {
             guard let discussions = await fetchMRDiscussions(id: mr.iid, projectId: mr.project_id) else { continue }
-            let newInfo = discussions.filter { $0.isNotSystem }
-            defer { discussionInfos[mr.id] = newInfo }
+            let newDiscussionInfos = discussions.filter { $0.isNotSystem }
+            defer { discussionInfos[mr.id] = newDiscussionInfos }
             guard let oldNotes = discussionInfos[mr.id]?.flatMap(\.notes) else { continue }
-            let updateNotes: [GLModel.Discussion.Note] = newInfo.flatMap(\.notes).compactMap { note in
-                if let oldNote = oldNotes.first(where: { $0.id == note.id }),
-                   oldNote.updated_at == note.updated_at
-                { return nil }
-                return note
-            }.sorted { $0.updated_at! < $1.updated_at! }
-            // 如果都是自己的 comment，则不需要通知
-            guard updateNotes.contains(where: { $0.author?.isNotMe ?? false }) else { continue }
+            let newNotes = if iWannaKnowEverything { // if I wanna know everything, notify all comments
+                newDiscussionInfos.flatMap(\.notes)
+            } else { // if i only concerned about myself, notify comments related to me
+                newDiscussionInfos.filter {
+                    mr.author?.isNotMe == false || $0.iParticipatedInDiscussion || $0.mentionsAnyTexts(concernedTexts)
+                }.flatMap(\.notes)
+            }
+            let updateNotes: [GLModel.Discussion.Note] = newNotes.filter { $0.author?.isNotMe == true }
+                .compactMap { note in
+                    if let oldNote = oldNotes.first(where: { $0.id == note.id }),
+                       oldNote.updated_at == note.updated_at
+                    { return nil }
+                    return note
+                }.sorted { $0.updated_at! < $1.updated_at! }
             if !updateNotes.isEmpty {
+                if mrsNewEventInfo[mr.id] == nil { mrsNewEventInfo[mr.id] = .noneNewEvent }
+                mrsNewEventInfo[mr.id]?.insert(.comment)
                 UserNotificationHandler.shared.sendNotification(
                     title: "\(mr.title ?? "")",
                     body: "New comments",
                     url: mr.web_url.absoluteString + "#note_\(updateNotes.first!.id)"
-                )
+                ) { [weak self] in
+                    self?.mrsNewEventInfo[mr.id]?.remove(.comment)
+                }
             }
         }
         // approval updated
@@ -260,9 +303,13 @@ class GitlabService {
         GitLabConfigs.userInfo = await fetchUserInfo()
         if let email = GitLabConfigs.userInfo?.email { GitLabConfigs.user = email }
         GitLabConfigs.hasSetup = GitLabConfigs.userInfo != nil
-        GitLabConfigs.setupGroupInfo()
+        await GitLabConfigs.setupGroupInfo()
     }
+}
 
+// MARK: - GitLab Requests
+
+private extension GitlabService {
     private func fetchMRList(searchText: String) async -> [GLModel.MergeRequest]? {
         guard let text = searchText.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else { return nil }
         do {
@@ -370,6 +417,18 @@ private extension GLModel.User {
 private extension GLModel.Discussion {
     var isNotSystem: Bool {
         notes.contains { $0.system == false }
+    }
+
+    var iParticipatedInDiscussion: Bool {
+        notes.contains { $0.author?.isNotMe == false }
+    }
+
+    func mentionsAnyTexts(_ texts: [String]) -> Bool {
+        texts.contains { mentionsText($0) }
+    }
+
+    func mentionsText(_ text: String) -> Bool {
+        notes.contains { $0.body?.contains(text) == true }
     }
 }
 

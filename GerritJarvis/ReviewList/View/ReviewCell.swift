@@ -78,7 +78,7 @@ struct ReviewCell: View {
                         .clipShape(Circle())
                     Text(store.name).frame(maxWidth: 40).lineLimit(2)
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundColor(.black.opacity(0.7))
+                        .opacity(0.7)
                         .multilineTextAlignment(.center)
                         .overlay(alignment: .topLeading) {
                             if store.hasNewEvent { Circle().foregroundStyle(.red).frame(width: 4, height: 4) }
@@ -120,7 +120,7 @@ struct ReviewCell: View {
                     Spacer()
                     Text(store.commitMessage).font(.system(size: 12)).lineLimit(2)
                         .frame(height: 30)
-                        .foregroundStyle(.black.opacity(0.6))
+                        .opacity(0.6)
                 }
                 .padding(.vertical)
             }

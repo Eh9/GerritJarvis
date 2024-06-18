@@ -17,6 +17,7 @@ struct GeneralPreference {
         @Shared(.shouldNotifyMergeConflict) var shouldNotifyMergeConflict = false
         @Shared(.shouldNotifyNewIncomingReview) var shouldNotifyNewIncomingReview = false
         @Shared(.showOurNotReadyReview) var showOurNotReadyReview = false
+        @Shared(.onlyNotifyEventAboutMySelf) var onlyNotifyEventAboutMySelf = true
         @Shared(.refreshFrequencyKey) var refreshFrequency = 3
 
         let options: [Double] = [1, 3, 5, 10, 30]
@@ -27,6 +28,7 @@ struct GeneralPreference {
         case setShouldNotifyMergeConflict(Bool)
         case setShouldNotifyNewIncomingReview(Bool)
         case setShowOurNotReadyReview(Bool)
+        case setOnlyNotifyEventAboutMySelf(Bool)
         case setRefreshFrequency(Double)
     }
 
@@ -44,6 +46,9 @@ struct GeneralPreference {
                 return .none
             case let .setShowOurNotReadyReview(value):
                 state.showOurNotReadyReview = value
+                return .none
+            case let .setOnlyNotifyEventAboutMySelf(value):
+                state.onlyNotifyEventAboutMySelf = value
                 return .none
             case let .setRefreshFrequency(value):
                 state.refreshFrequency = value
@@ -63,6 +68,7 @@ extension PersistenceReaderKey where Self == AppStorageKey<Bool> {
     static var launchAtLogin: Self { appStorage("LaunchAtLoginKey") }
     static var shouldNotifyMergeConflict: Self { appStorage("ShouldNotifyMergeConflict") }
     static var shouldNotifyNewIncomingReview: Self { appStorage("ShouldNotifyNewIncomingReviewKey") }
+    static var onlyNotifyEventAboutMySelf: Self { appStorage("OnlyNotifyEventAboutMySelfKey") }
     static var showOurNotReadyReview: Self { appStorage("ShowOurNotReadyReviewKey") }
 }
 
@@ -86,6 +92,10 @@ struct GeneralPreferenceView: View {
             Toggle(
                 LocalizedStringKey("DisplayMySelfNoReadyReview"),
                 isOn: $store.showOurNotReadyReview.sending(\.setShowOurNotReadyReview)
+            )
+            Toggle(
+                LocalizedStringKey("OnlyNotifyEventAboutMySelf"),
+                isOn: $store.onlyNotifyEventAboutMySelf.sending(\.setOnlyNotifyEventAboutMySelf)
             )
             Divider()
             HStack {

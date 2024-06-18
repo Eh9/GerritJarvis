@@ -13,25 +13,26 @@ import ComposableArchitecture
 struct ReviewList {
     @ObservableState
     struct State {
+        var hasAccount: Bool
         var gerritReviews: IdentifiedArrayOf<GerritReviewDisplay.State> = []
         var gitlabReviews: IdentifiedArrayOf<GitLabReviewDisplay.State> = []
     }
 
     enum Action {
-        case `init`
+        case onAppear
         case clearNewEvent
         case refreshData
         case clickAbout
         case clickPreferences
         case clickQuit
-        case updateGerritChanges
-        case updateGitLabMRs
+        case updateList
         case gerritReviews(IdentifiedActionOf<GerritReviewDisplay>)
         case gitlabReviews(IdentifiedActionOf<GitLabReviewDisplay>)
         case didPressGerrit(id: GerritReviewDisplay.State.ID)
         case didPressGitLab(id: GitLabReviewDisplay.State.ID)
     }
 
+    @Dependency(\.jarvisClient) var jarvisClient
     @Dependency(\.gerritClient) var gerritClient
     @Dependency(\.gitlabService) var gitlabService
     @Dependency(\.openURL) var openURL
@@ -39,8 +40,13 @@ struct ReviewList {
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-            case .`init`:
-                return updateDataSideEffect
+            case .onAppear:
+                state.hasAccount = jarvisClient.hasAccount
+                return .none
+            case .refreshData:
+                return .run { send in
+                    await jarvisClient.refreshData()
+                }
             case .clickAbout:
                 return .run { _ in
                     await NSApplication.shared.orderFrontStandardAboutPanel()
@@ -55,18 +61,19 @@ struct ReviewList {
                 return .run { _ in
                     await NSApplication.shared.terminate(self)
                 }
-            case .updateGerritChanges:
+            case .updateList:
                 state.gerritReviews = .init(uniqueElements: gerritClient.showingChanges)
-                return .none
-            case .updateGitLabMRs:
                 state.gitlabReviews = .init(uniqueElements: gitlabService.showingMRs)
                 return .none
             case let .didPressGerrit(id):
+                state.gerritReviews[id: id]?.baseCell.hasNewEvent = false
                 return .run { _ in
+                    gerritClient.resetNewStateOfChange(id: id)
                     guard let url = gerritClient.changeURL(id: id) else { return }
                     await openURL(url)
                 }
             case let .didPressGitLab(id):
+                state.gitlabReviews[id: id]?.baseCell.hasNewEvent = false
                 return .run { _ in
                     guard let url = gitlabService.mrURL(id: id) else { return }
                     await openURL(url)
@@ -79,15 +86,6 @@ struct ReviewList {
             GitLabReviewDisplay()
         }
     }
-
-    private var updateDataSideEffect: Effect<Action> {
-        .run { send in
-            await gerritClient.update()
-            await send(.updateGerritChanges)
-            await gitlabService.fetchMRs()
-            await send(.updateGitLabMRs)
-        }
-    }
 }
 
 struct ReviewListView: View {
@@ -95,24 +93,38 @@ struct ReviewListView: View {
 
     init(store: StoreOf<ReviewList>) {
         self.store = store
-        store.send(.`init`)
+        store.send(.updateList)
+        NotificationCenter.default.addObserver(
+            forName: .ReviewListUpdatedNotification,
+            object: nil,
+            queue: nil
+        ) { [store] _ in
+            store.send(.updateList)
+        }
     }
 
     var body: some View {
         WithPerceptionTracking {
             headerView
-            if #available(macOS 13.0, *) {
-                listView.scrollIndicators(.never)
+            if store.hasAccount {
+                if #available(macOS 13.0, *) {
+                    listView.scrollIndicators(.never)
+                } else {
+                    listView
+                }
             } else {
-                listView
+                emptyAccountView.frame(minHeight: 400)
             }
+        }
+        .onAppear {
+            store.send(.onAppear)
         }
     }
 
     private var listView: some View {
         List {
-            gerritReviewsView
             gitlabReviewsView
+            gerritReviewsView
         }
         .listStyle(.plain)
     }
@@ -139,7 +151,7 @@ struct ReviewListView: View {
             Image(.clear)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .foregroundStyle(.black.opacity(0.7))
+                .foregroundStyle(Color.primary)
                 .padding(.top, 6)
                 .onTapGesture {
                     store.send(.clearNewEvent)
@@ -147,7 +159,7 @@ struct ReviewListView: View {
             Image(.sync)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .foregroundStyle(.black.opacity(0.7))
+                .foregroundStyle(Color.primary)
                 .padding(.top, 6)
                 .onTapGesture {
                     store.send(.refreshData)
@@ -161,7 +173,6 @@ struct ReviewListView: View {
                 Image(.setting)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .foregroundStyle(.black.opacity(0.7))
             }.menuStyle(.borderlessButton)
                 .padding(.top, 6)
                 .padding(.trailing)
@@ -171,16 +182,28 @@ struct ReviewListView: View {
         .frame(height: 30)
     }
 
+    private var emptyAccountView: some View {
+        VStack {
+            Text("Go to Preference To Setup Account")
+            Button("Go to Preference") {
+                store.send(.clickPreferences)
+            }
+        }
+    }
+
     static var vc: NSViewController {
         NSHostingController(
-            rootView: ReviewListView(store: .init(initialState: ReviewList.State()) { ReviewList() })
+            rootView: ReviewListView(store: .init(
+                initialState: ReviewList
+                    .State(hasAccount: ConfigManager.shared.hasUser())
+            ) { ReviewList() })
         )
     }
 }
 
 #Preview {
     ReviewListView(
-        store: .init(initialState: ReviewList.State()) {
+        store: .init(initialState: ReviewList.State(hasAccount: false)) {
             ReviewList()
         }
     )
