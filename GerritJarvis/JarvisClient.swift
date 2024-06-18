@@ -48,6 +48,8 @@ class JarvisClient {
         }
     }
 
+    private(set) var isFetchingData: Bool = false
+
     var hasAccount: Bool {
         ConfigManager.shared.hasUser()
     }
@@ -56,23 +58,27 @@ class JarvisClient {
 
     func setupAccount() async {
         stopTimer()
-        async let gerritAccount = gerritClient.verifyAccount()
-        async let gitlabAccount: Void = gitlabService.setup()
-        await gitlabAccount
+        isFetchingData = true
+        async let gitlabAccount: ()? = ConfigManager.shared.hasGitLabUser ? gitlabService.setup() : nil
+        async let gerritAccount = ConfigManager.shared.hasGerritUser ? gerritClient.verifyAccount() : nil
         do {
             _ = try await gerritAccount
-            await refreshData()
         } catch {
             print("setupAccount error: \(error)")
         }
+        await gitlabAccount
+        isFetchingData = false
+        await refreshData()
     }
 
     func refreshData() async {
         stopTimer()
-        async let gerrit: Void = gerritClient.update()
-        async let gitlab: Void = gitlabService.fetchMRs()
+        isFetchingData = true
+        async let gerrit: ()? = ConfigManager.shared.hasGerritUser ? gerritClient.update() : nil
+        async let gitlab: ()? = ConfigManager.shared.hasGitLabUser ? gitlabService.fetchMRs() : nil
         _ = await(gerrit, gitlab)
         DispatchQueue.main.async { [self] in
+            isFetchingData = false
             NotificationCenter.default.post(
                 name: .ReviewListUpdatedNotification,
                 object: nil,
@@ -85,6 +91,16 @@ class JarvisClient {
             )
             startTimer()
         }
+    }
+
+    func clearNewEvent() {
+        gerritClient.clearNewEvent()
+        gitlabService.clearNewEvent()
+        NotificationCenter.default.post(
+            name: ReviewListNewEvents.notificationName,
+            object: nil,
+            userInfo: nil
+        )
     }
 
     private func startTimer() {

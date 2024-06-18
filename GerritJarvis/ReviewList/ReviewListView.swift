@@ -14,6 +14,7 @@ struct ReviewList {
     @ObservableState
     struct State {
         var hasAccount: Bool
+        var loading: Bool = false
         var gerritReviews: IdentifiedArrayOf<GerritReviewDisplay.State> = []
         var gitlabReviews: IdentifiedArrayOf<GitLabReviewDisplay.State> = []
     }
@@ -43,7 +44,12 @@ struct ReviewList {
             case .onAppear:
                 state.hasAccount = jarvisClient.hasAccount
                 return .none
+            case .clearNewEvent:
+                return .run { send in
+                    jarvisClient.clearNewEvent()
+                }
             case .refreshData:
+                state.loading = true
                 return .run { send in
                     await jarvisClient.refreshData()
                 }
@@ -62,6 +68,7 @@ struct ReviewList {
                     await NSApplication.shared.terminate(self)
                 }
             case .updateList:
+                state.loading = jarvisClient.isFetchingData
                 state.gerritReviews = .init(uniqueElements: gerritClient.showingChanges)
                 state.gitlabReviews = .init(uniqueElements: gitlabService.showingMRs)
                 return .none
@@ -75,10 +82,14 @@ struct ReviewList {
             case let .didPressGitLab(id):
                 state.gitlabReviews[id: id]?.baseCell.hasNewEvent = false
                 return .run { _ in
+                    gitlabService.resetNewStateOfMR(id: id)
                     guard let url = gitlabService.mrURL(id: id) else { return }
                     await openURL(url)
                 }
-            default: return .none
+            case .gerritReviews:
+                return .none
+            case .gitlabReviews:
+                return .none
             }
         }.forEach(\.gerritReviews, action: \.gerritReviews) {
             GerritReviewDisplay()
@@ -164,6 +175,7 @@ struct ReviewListView: View {
                 .onTapGesture {
                     store.send(.refreshData)
                 }
+                .disabled(store.loading)
             Menu {
                 Button("About") { store.send(.clickAbout) }
                 Button("Preference") { store.send(.clickPreferences) }
@@ -180,6 +192,11 @@ struct ReviewListView: View {
         }
         .foregroundStyle(.background)
         .frame(height: 30)
+        .overlay(alignment: .center) {
+            if store.loading {
+                ProgressView().scaleEffect(0.5)
+            }
+        }
     }
 
     private var emptyAccountView: some View {

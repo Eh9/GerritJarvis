@@ -142,6 +142,14 @@ class GitlabService {
         hasFinishedFirstFetch = true
     }
 
+    func resetNewStateOfMR(id: Int) {
+        mrsNewEventInfo[id] = nil
+    }
+
+    func clearNewEvent() {
+        mrsNewEventInfo = [:]
+    }
+
     func clear() {
         trackingMRs = []
         projectInfos = [:]

@@ -118,6 +118,10 @@ class GerritClient {
         newEventStates[change.newEventKey()] = false
     }
 
+    func clearNewEvent() {
+        trackingChanges.forEach { resetNewStateOfChange(id: $0.id ?? "") }
+    }
+
     private func updateCommentCount(change: Change, oldChange: Change) {
         // TODO: 感觉这个作用不大，写起来逻辑比较复杂，可以后面再加上
     }
