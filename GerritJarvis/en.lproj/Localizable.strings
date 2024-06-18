@@ -22,3 +22,10 @@
 "NetworkError" = "Network or Service Error, Authorization Failed";
 "InvalidUser" = "Invalid User, Authorization Failed";
 "JarvisService" = "Jarvis is at your service";
+"LaunchAtLogin" = "Launch At Login";
+"NotifyConflict" = "Notify Merge Conflict";
+"NotifyNewReview" = "Nofify New Incoming Review";
+"DisplayMySelfNoReadyReview" = "Display My Review Which Score -2 By Myself";
+"OnlyNotifyEventAboutMySelf" = "Only Notify Event About Myself";
+"RefreshFreq" = "Refresh Frequency";
+"Minites" = "Minites";

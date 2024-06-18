@@ -8,42 +8,61 @@
 
 import Cocoa
 import Settings
+import ComposableArchitecture
 
 extension Settings.PaneIdentifier {
     static let general = Self("general")
-    static let account = Self("gerrit")
-    static let gitlabAccount = Self("gitlab")
-    static let blacklist = Self("blacklist")
+    static let gerrit = Self("gerrit")
+    static let gitlab = Self("gitlab")
 }
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
+    private var triggerController: MergedTriggerWindowController?
+
+    @Dependency(\.jarvisClient) var jarvisClient
+
     lazy var popover: NSPopover = {
         let pop = NSPopover()
         pop.behavior = .transient
-        pop.contentViewController = ReviewListViewController
-            .freshController(dataController: self.reviewListDataController)
+        pop.contentSize = .init(width: 511, height: 557)
+        pop.contentViewController = ReviewListView.vc
         return pop
     }()
 
     lazy var preferencesWindowController = SettingsWindowController(
         panes: [
-            GeneralPreferenceViewController(),
-            AccountPreferenceViewController(),
             Settings.Pane(
-                identifier: .gitlabAccount,
-                title: "GitLabAccount",
+                identifier: .general,
+                title: "General",
+                toolbarIcon: NSImage(named: NSImage.preferencesGeneralName)!
+            ) {
+                GeneralPreferenceView(store: .init(initialState: GeneralPreference.State()) {
+                    GeneralPreference()
+                })
+            },
+            Settings.Pane(
+                identifier: .gerrit,
+                title: "Gerrit",
+                toolbarIcon: NSImage(named: NSImage.advancedName)!
+            ) {
+                GerritAccountPreferenceView(store: .init(initialState: GerritAccountPreference.State()) {
+                    GerritAccountPreference()
+                })
+            },
+            Settings.Pane(
+                identifier: .gitlab,
+                title: "GitLab",
                 toolbarIcon: NSImage(named: NSImage.advancedName)!
             ) {
                 GitLabAccountSettingView().environmentObject(GitLabConfigs.groupInfo)
             },
-            BlackListPreferenceViewController(),
         ]
     )
 
-    var reviewListDataController = ReviewListDataController()
+    // var reviewListDataController = ReviewListDataController()
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
@@ -53,12 +72,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(reviewListUpdated(notification:)),
-            name: ReviewListDataController.ReviewListNewEventsNotification,
+            name: ReviewListNewEvents.notificationName,
             object: nil
         )
 
         if ConfigManager.shared.hasUser() {
-            reviewListDataController.setupAccount()
+            Task { await jarvisClient.setupAccount() }
         }
         UserNotificationHandler.shared.setup()
     }
@@ -106,22 +125,36 @@ extension AppDelegate {
         if ConfigManager.shared.hasUser() {
             preferencesWindowController.show(pane: .general)
         } else {
-            preferencesWindowController.show(pane: .account)
+            preferencesWindowController.show(pane: .gerrit)
         }
+    }
+}
+
+// MARK: - GerritTrigger
+
+extension AppDelegate {
+    func showGerritTrigger(change: Change) {
+        if triggerController != nil {
+            triggerController?.close()
+        }
+        triggerController = MergedTriggerWindowController(windowNibName: "MergedTriggerWindowController")
+        triggerController?.change = change
+        triggerController?.showWindow(NSApplication.shared.delegate)
     }
 }
 
 // MARK: - Event Count
 
+enum ReviewListNewEvents {
+    static let key = "ReviewListNewEvents"
+    static let notificationName = Notification.Name("ReviewListNewEvents")
+}
+
 extension AppDelegate {
     @objc func reviewListUpdated(notification: Notification?) {
-        guard let userInfo = notification?.userInfo,
-              let newEvents = userInfo[ReviewListDataController.ReviewListNewEventsKey] as? Int
-        else {
-            updateEventCount(0)
-            return
+        DispatchQueue.main.async { [self] in
+            updateEventCount(jarvisClient.newEventCount)
         }
-        updateEventCount(newEvents)
     }
 
     private func updateEventCount(_ count: Int) {

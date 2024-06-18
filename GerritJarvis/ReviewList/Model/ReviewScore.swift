@@ -15,7 +15,7 @@ enum ReviewScore: String {
     case MinusOne = "-1"
     case MinusTwo = "-2"
 
-    static private let priorities: [ReviewScore] = [
+    private static let priorities: [ReviewScore] = [
         .Zero,
         .PlusOne,
         .MinusOne,
@@ -32,5 +32,26 @@ enum ReviewScore: String {
             }
         }
         return result
+    }
+
+    var imageIcon: ImageResource? {
+        switch self {
+        case .MinusOne: .reviewMinus1
+        case .MinusTwo: .reviewMinus2
+        case .PlusOne: .reviewPlus1
+        case .PlusTwo: .reviewPlus2
+        case .Zero: nil
+        }
+    }
+
+    var imageFilePath: URL? {
+        let filename = switch self {
+        case .MinusOne: "ReviewMinus1"
+        case .MinusTwo: "ReviewMinus2"
+        case .PlusOne: "ReviewPlus1"
+        case .PlusTwo: "ReviewPlus2"
+        case .Zero: ""
+        }
+        return Bundle.main.url(forResource: filename, withExtension: "png")
     }
 }

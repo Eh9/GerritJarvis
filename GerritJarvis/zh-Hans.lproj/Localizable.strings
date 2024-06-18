@@ -22,3 +22,10 @@
 "NetworkError" = "网络或服务错误，账户验证失败";
 "InvalidUser" = "无效的用户名，账户验证失败";
 "JarvisService" = "Jarvis 将为你服务";
+"LaunchAtLogin" = "开机启动";
+"NotifyConflict" = "通知 Merge Conflict";
+"NotifyNewReview" = "通知新的 Incoming Review";
+"DisplayMySelfNoReadyReview" = "显示自己提的 Review 中被自己 -2 的 Review";
+"OnlyNotifyEventAboutMySelf" = "只通知和自己相关的事件";
+"RefreshFreq" = "列表刷新频率";
+"Minites" = "分钟";

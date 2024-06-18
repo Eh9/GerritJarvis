@@ -9,7 +9,6 @@
 import Cocoa
 
 extension Change {
-
     func isOurs() -> Bool {
         guard let owner = owner else {
             return false
@@ -22,7 +21,8 @@ extension Change {
 
     func hasNoReviewers() -> Bool {
         guard let labels = labels,
-            let review = labels["Code-Review"] as? [String: Any] else {
+              let review = labels["Code-Review"] as? [String: Any]
+        else {
             return false
         }
         return review["all"] == nil
@@ -94,7 +94,7 @@ extension Change {
             guard let messageId = message.id else {
                 continue
             }
-            if (messageId == originMessageId) {
+            if messageId == originMessageId {
                 found = true
                 continue
             }
@@ -112,8 +112,9 @@ extension Change {
     func mergedBy() -> String? {
         let prefix = "Change has been successfully merged by "
         guard let last = messages?.last,
-            var message = last.message,
-            message.hasPrefix(prefix) else {
+              var message = last.message,
+              message.hasPrefix(prefix)
+        else {
             return nil
         }
         message.removeFirst(prefix.count)
@@ -139,7 +140,7 @@ extension Change {
 
     func calculateReviewScore() -> (ReviewScore, Author?) {
         var resultScore: ReviewScore = .Zero
-        var resultAuthor: Author? = nil
+        var resultAuthor: Author?
         guard let messages = messages else {
             return (resultScore, resultAuthor)
         }
@@ -148,7 +149,7 @@ extension Change {
             if resultScore.priority() <= score.priority() {
                 resultScore = score
                 // 当出现被自己 -2 的情况，Author 始终为自己
-                if score == .MinusTwo && (resultAuthor?.isMe() ?? false) {
+                if score == .MinusTwo, resultAuthor?.isMe() ?? false {
                     continue
                 }
                 resultAuthor = author
@@ -159,19 +160,22 @@ extension Change {
 
     func isInBlacklist() -> Bool {
         guard let name = owner?.name,
-            let username = owner?.username,
-            let project = project?.description else {
+              let username = owner?.username,
+              let project = project?.description
+        else {
             return false
         }
         var inBlacklist = false
         for (type, value) in ConfigManager.shared.blacklist {
-            if type == ConfigManager.BlacklistType.User
-                && (value == name || value == username) {
+            if type == ConfigManager.BlacklistType.User,
+               value == name || value == username
+            {
                 inBlacklist = true
                 break
             }
-            if type == ConfigManager.BlacklistType.Project
-                && value == project {
+            if type == ConfigManager.BlacklistType.Project,
+               value == project
+            {
                 inBlacklist = true
                 break
             }
@@ -207,11 +211,9 @@ extension Change {
         }
         return (our, final)
     }
-
 }
 
 extension Author {
-
     func isMe() -> Bool {
         return accountId == ConfigManager.shared.accountId
     }
@@ -225,8 +227,9 @@ extension Author {
 
     func isInBlackList() -> Bool {
         for (type, value) in ConfigManager.shared.blacklist {
-            if type == ConfigManager.BlacklistType.User
-                && (value == name || value == username) {
+            if type == ConfigManager.BlacklistType.User,
+               value == name || value == username
+            {
                 return true
             }
         }
@@ -235,19 +238,28 @@ extension Author {
 
     func avatarImage() -> NSImage? {
         if isMe() {
-            return NSImage.init(named: NSImage.Name("AvatarMyself"))
+            return NSImage(named: NSImage.Name("AvatarMyself"))
         }
         var index = 0
         if let accountId = accountId {
             index = accountId % 46
         }
-        return NSImage.init(named: NSImage.Name("Avatar\(index)"))
+        return NSImage(named: NSImage.Name("Avatar\(index)"))
     }
 
+    func avatarImageName() -> String {
+        if isMe() {
+            return "AvatarMyself"
+        }
+        var index = 0
+        if let accountId = accountId {
+            index = accountId % 46
+        }
+        return "Avatar\(index)"
+    }
 }
 
 extension Message {
-
     func isOurEvent() -> Bool {
         guard let author = author else {
             return false
@@ -258,7 +270,8 @@ extension Message {
     // 打分和评论的 Message 特点都是以 Patch Set [revisionNumber] 开头，结尾没有 was rebased.
     func isReviewEvent() -> Bool {
         guard let message = message,
-            let revisionNumber = revisionNumber else {
+              let revisionNumber = revisionNumber
+        else {
             return false
         }
         return (message.hasPrefix("Patch Set \(revisionNumber):") && !message.hasSuffix("was rebased."))
@@ -271,15 +284,17 @@ extension Message {
             return nil
         }
         // 从 Message 中筛选出打分
-        var score: ReviewScore? = nil
+        var score: ReviewScore?
         if message.contains("-Code-Review") {
             score = .Zero
         } else if message.hasPrefix("Removed the following votes") {
             score = .Zero
         } else if message.hasPrefix("Removed Code-Review") {
             score = .Zero
-        } else if let range = message.range(of: #"(?<=Code-Review)[+-][12]"#,
-                                            options: .regularExpression) {
+        } else if let range = message.range(
+            of: #"(?<=Code-Review)[+-][12]"#,
+            options: .regularExpression
+        ) {
             score = ReviewScore(rawValue: String(message[range]))
         }
         return score
@@ -290,11 +305,12 @@ extension Message {
         guard let message = message else {
             return comments
         }
-        if let range = message.range(of: #"(?<=\()\d+(?=\scomments?\))"#,
-                                     options: .regularExpression) {
+        if let range = message.range(
+            of: #"(?<=\()\d+(?=\scomments?\))"#,
+            options: .regularExpression
+        ) {
             comments = Int(String(message[range])) ?? comments
         }
         return comments
     }
-
 }

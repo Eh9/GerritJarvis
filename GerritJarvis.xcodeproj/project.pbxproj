@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8D295C2E2C07468D003380EF /* ReviewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D295C2D2C07468D003380EF /* ReviewCell.swift */; };
+		8D40260C2C12F50600C9A729 /* JarvisClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D40260B2C12F50600C9A729 /* JarvisClient.swift */; };
 		8D50D2EB2BEE038A00E8AC01 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D2EA2BEE038A00E8AC01 /* Alamofire */; };
 		8D50D2EE2BEE044C00E8AC01 /* ObjectMapper in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D2ED2BEE044C00E8AC01 /* ObjectMapper */; };
 		8D50D2F12BEE047700E8AC01 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D2F02BEE047700E8AC01 /* SnapKit */; };
@@ -16,7 +18,15 @@
 		8D50D30F2BEF670600E8AC01 /* GitLabService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D50D30E2BEF670600E8AC01 /* GitLabService.swift */; };
 		8D50D3112BEF685800E8AC01 /* GitLabConfigs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D50D3102BEF685800E8AC01 /* GitLabConfigs.swift */; };
 		8D50D3172BF4932500E8AC01 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 8D50D3162BF4932500E8AC01 /* SDWebImageSwiftUI */; };
+		8D71C8122C0EC8B000EBCD87 /* GerritReviewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D71C8112C0EC8B000EBCD87 /* GerritReviewCell.swift */; };
+		8D71C8142C0F347600EBCD87 /* GitLabReviewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D71C8132C0F347600EBCD87 /* GitLabReviewCell.swift */; };
+		8D71C8162C0F3D5900EBCD87 /* ReviewListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D71C8152C0F3D5900EBCD87 /* ReviewListView.swift */; };
+		8D71C8182C10684A00EBCD87 /* GerritClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D71C8172C10684A00EBCD87 /* GerritClient.swift */; };
 		8D8E0C352BFB703400AAAD34 /* GitLabSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8D8E0C342BFB703400AAAD34 /* GitLabSwift */; };
+		8D8E0C382BFDDAC300AAAD34 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 8D8E0C372BFDDAC300AAAD34 /* ComposableArchitecture */; };
+		8D8E0C3A2BFDF4BC00AAAD34 /* GeneralPreferenceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E0C392BFDF4BC00AAAD34 /* GeneralPreferenceView.swift */; };
+		8D8E0C3C2BFEE78300AAAD34 /* GerritAccountPreferenceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E0C3B2BFEE78300AAAD34 /* GerritAccountPreferenceView.swift */; };
+		8D8E0C3F2C0091C900AAAD34 /* GerritBlackListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D8E0C3E2C0091C900AAAD34 /* GerritBlackListView.swift */; };
 		8DE9861E2BFB2DC4008A0BFD /* NotificationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DE9861D2BFB2DC4008A0BFD /* NotificationHandler.swift */; };
 		D207F0DD2272BBA5000EB2B4 /* Avatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D207F0DC2272BBA4000EB2B4 /* Avatar.swift */; };
 		D207F0E02272BE06000EB2B4 /* GerritResponseUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = D207F0DF2272BE06000EB2B4 /* GerritResponseUtils.swift */; };
@@ -24,33 +34,17 @@
 		D2350AE72180616B0002A17D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D2350AE62180616B0002A17D /* Assets.xcassets */; };
 		D2350AEA2180616B0002A17D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D2350AE82180616B0002A17D /* Main.storyboard */; };
 		D26AC9A42272D5BE00D65397 /* GerritModelHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D26AC9A32272D5BE00D65397 /* GerritModelHelper.swift */; };
-		D26AC9A62272E96900D65397 /* ReviewListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D26AC9A52272E96900D65397 /* ReviewListViewController.swift */; };
-		D26AC9AC227319F100D65397 /* ReviewListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = D26AC9AB227319F100D65397 /* ReviewListCell.xib */; };
-		D26AC9AE22731A1500D65397 /* ReviewListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D26AC9AD22731A1500D65397 /* ReviewListCell.swift */; };
-		D2758AF823083CE900CD2DA7 /* BlackListPreferenceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2758AF623083CE900CD2DA7 /* BlackListPreferenceViewController.swift */; };
-		D2758AF923083CE900CD2DA7 /* BlackListPreferenceViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D2758AF723083CE900CD2DA7 /* BlackListPreferenceViewController.xib */; };
 		D288598C220BE3C1003495BC /* Change.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2885989220BE3C1003495BC /* Change.swift */; };
 		D288598D220BE3C1003495BC /* Author.swift in Sources */ = {isa = PBXBuildFile; fileRef = D288598A220BE3C1003495BC /* Author.swift */; };
 		D288598E220BE3C1003495BC /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = D288598B220BE3C1003495BC /* Message.swift */; };
 		D2885990220BE633003495BC /* GerritService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D288598F220BE633003495BC /* GerritService.swift */; };
 		D28FB85F23099F2200E00339 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = D28FB86123099F2200E00339 /* Localizable.strings */; };
-		D28FB8632309A7C100E00339 /* GeneralPreferenceViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D28FB8652309A7C100E00339 /* GeneralPreferenceViewController.xib */; };
-		D291E2F322856E1C0033614B /* VerticallyCenteredTextFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D291E2F222856E1C0033614B /* VerticallyCenteredTextFieldCell.swift */; };
-		D291E2F9228582060033614B /* ReviewListCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D291E2F8228582060033614B /* ReviewListCellViewModel.swift */; };
 		D291E2FB22858A620033614B /* ReviewScore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D291E2FA22858A620033614B /* ReviewScore.swift */; };
 		D291E3052287FB810033614B /* ConfigManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D291E3042287FB810033614B /* ConfigManager.swift */; };
-		D291E3072287FEB90033614B /* ReviewListDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D291E3062287FEB90033614B /* ReviewListDataController.swift */; };
 		D291E309228976610033614B /* GerritUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = D291E308228976610033614B /* GerritUtils.swift */; };
-		D291E318228B15EC0033614B /* GeneralPreferenceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D291E316228B15EC0033614B /* GeneralPreferenceViewController.swift */; };
-		D291E31D228B172E0033614B /* AccountPreferenceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D291E31B228B172E0033614B /* AccountPreferenceViewController.swift */; };
-		D291E31E228B172E0033614B /* AccountPreferenceViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D291E31C228B172E0033614B /* AccountPreferenceViewController.xib */; };
-		D291E320228B2C300033614B /* PasteTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = D291E31F228B2C300033614B /* PasteTextField.swift */; };
-		D291E324228B343E0033614B /* ReviewListEmptyView.xib in Resources */ = {isa = PBXBuildFile; fileRef = D291E323228B343E0033614B /* ReviewListEmptyView.xib */; };
-		D291E328228B34BD0033614B /* ReviewListEmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D291E327228B34BD0033614B /* ReviewListEmptyView.swift */; };
 		D297346D229B99F800C51043 /* MergedTriggerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D297346C229B99F800C51043 /* MergedTriggerManager.swift */; };
 		D2BBB37F2299862700288865 /* MergedTriggerWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2BBB37D2299862700288865 /* MergedTriggerWindowController.swift */; };
 		D2BBB3802299862700288865 /* MergedTriggerWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D2BBB37E2299862700288865 /* MergedTriggerWindowController.xib */; };
-		D2BBB38222998E0D00288865 /* PasteTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2BBB38122998E0D00288865 /* PasteTextView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -67,9 +61,18 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8D295C2D2C07468D003380EF /* ReviewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewCell.swift; sourceTree = "<group>"; };
+		8D40260B2C12F50600C9A729 /* JarvisClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JarvisClient.swift; sourceTree = "<group>"; };
 		8D50D3082BEF4C5700E8AC01 /* GitlabAccountSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitlabAccountSettingView.swift; sourceTree = "<group>"; };
 		8D50D30E2BEF670600E8AC01 /* GitLabService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitLabService.swift; sourceTree = "<group>"; };
 		8D50D3102BEF685800E8AC01 /* GitLabConfigs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitLabConfigs.swift; sourceTree = "<group>"; };
+		8D71C8112C0EC8B000EBCD87 /* GerritReviewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GerritReviewCell.swift; sourceTree = "<group>"; };
+		8D71C8132C0F347600EBCD87 /* GitLabReviewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitLabReviewCell.swift; sourceTree = "<group>"; };
+		8D71C8152C0F3D5900EBCD87 /* ReviewListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewListView.swift; sourceTree = "<group>"; };
+		8D71C8172C10684A00EBCD87 /* GerritClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GerritClient.swift; sourceTree = "<group>"; };
+		8D8E0C392BFDF4BC00AAAD34 /* GeneralPreferenceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralPreferenceView.swift; sourceTree = "<group>"; };
+		8D8E0C3B2BFEE78300AAAD34 /* GerritAccountPreferenceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GerritAccountPreferenceView.swift; sourceTree = "<group>"; };
+		8D8E0C3E2C0091C900AAAD34 /* GerritBlackListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GerritBlackListView.swift; sourceTree = "<group>"; };
 		8DE9861D2BFB2DC4008A0BFD /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
 		D207F0DC2272BBA4000EB2B4 /* Avatar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Avatar.swift; sourceTree = "<group>"; };
 		D207F0DF2272BE06000EB2B4 /* GerritResponseUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GerritResponseUtils.swift; sourceTree = "<group>"; };
@@ -80,36 +83,18 @@
 		D2350AEB2180616B0002A17D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D2350AEC2180616B0002A17D /* GerritJarvis.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GerritJarvis.entitlements; sourceTree = "<group>"; };
 		D26AC9A32272D5BE00D65397 /* GerritModelHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GerritModelHelper.swift; sourceTree = "<group>"; };
-		D26AC9A52272E96900D65397 /* ReviewListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewListViewController.swift; sourceTree = "<group>"; };
-		D26AC9AB227319F100D65397 /* ReviewListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ReviewListCell.xib; sourceTree = "<group>"; };
-		D26AC9AD22731A1500D65397 /* ReviewListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewListCell.swift; sourceTree = "<group>"; };
-		D2758AF623083CE900CD2DA7 /* BlackListPreferenceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackListPreferenceViewController.swift; sourceTree = "<group>"; };
-		D2758AF723083CE900CD2DA7 /* BlackListPreferenceViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = BlackListPreferenceViewController.xib; sourceTree = "<group>"; };
 		D2885989220BE3C1003495BC /* Change.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Change.swift; sourceTree = "<group>"; };
 		D288598A220BE3C1003495BC /* Author.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Author.swift; sourceTree = "<group>"; };
 		D288598B220BE3C1003495BC /* Message.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		D288598F220BE633003495BC /* GerritService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GerritService.swift; sourceTree = "<group>"; };
 		D28FB86023099F2200E00339 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		D28FB86223099F4A00E00339 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
-		D28FB8642309A7C100E00339 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/GeneralPreferenceViewController.xib; sourceTree = "<group>"; };
-		D28FB8672309A7ED00E00339 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/GeneralPreferenceViewController.strings; sourceTree = "<group>"; };
-		D28FB8692309A7EF00E00339 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/GeneralPreferenceViewController.strings"; sourceTree = "<group>"; };
-		D291E2F222856E1C0033614B /* VerticallyCenteredTextFieldCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticallyCenteredTextFieldCell.swift; sourceTree = "<group>"; };
-		D291E2F8228582060033614B /* ReviewListCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewListCellViewModel.swift; sourceTree = "<group>"; };
 		D291E2FA22858A620033614B /* ReviewScore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewScore.swift; sourceTree = "<group>"; };
 		D291E3042287FB810033614B /* ConfigManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigManager.swift; sourceTree = "<group>"; };
-		D291E3062287FEB90033614B /* ReviewListDataController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReviewListDataController.swift; sourceTree = "<group>"; };
 		D291E308228976610033614B /* GerritUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GerritUtils.swift; sourceTree = "<group>"; };
-		D291E316228B15EC0033614B /* GeneralPreferenceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralPreferenceViewController.swift; sourceTree = "<group>"; };
-		D291E31B228B172E0033614B /* AccountPreferenceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountPreferenceViewController.swift; sourceTree = "<group>"; };
-		D291E31C228B172E0033614B /* AccountPreferenceViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AccountPreferenceViewController.xib; sourceTree = "<group>"; };
-		D291E31F228B2C300033614B /* PasteTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteTextField.swift; sourceTree = "<group>"; };
-		D291E323228B343E0033614B /* ReviewListEmptyView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ReviewListEmptyView.xib; sourceTree = "<group>"; };
-		D291E327228B34BD0033614B /* ReviewListEmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewListEmptyView.swift; sourceTree = "<group>"; };
 		D297346C229B99F800C51043 /* MergedTriggerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MergedTriggerManager.swift; sourceTree = "<group>"; };
 		D2BBB37D2299862700288865 /* MergedTriggerWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MergedTriggerWindowController.swift; sourceTree = "<group>"; };
 		D2BBB37E2299862700288865 /* MergedTriggerWindowController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MergedTriggerWindowController.xib; sourceTree = "<group>"; };
-		D2BBB38122998E0D00288865 /* PasteTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteTextView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,6 +108,7 @@
 				8D50D2EB2BEE038A00E8AC01 /* Alamofire in Frameworks */,
 				8D50D2F42BEE050500E8AC01 /* Settings in Frameworks */,
 				8D50D2FE2BEE074100E8AC01 /* LaunchAtLogin in Frameworks */,
+				8D8E0C382BFDDAC300AAAD34 /* ComposableArchitecture in Frameworks */,
 				8D50D2F12BEE047700E8AC01 /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -182,8 +168,9 @@
 				D291E314228B157F0033614B /* Preference */,
 				D291E325228B34610033614B /* Foundation */,
 				D2885986220B125F003495BC /* Gerrit */,
-				D2350AE22180616A0002A17D /* AppDelegate.swift */,
 				8D50D30D2BEF66FA00E8AC01 /* GitLab */,
+				D2350AE22180616A0002A17D /* AppDelegate.swift */,
+				8D40260B2C12F50600C9A729 /* JarvisClient.swift */,
 				D2350AE62180616B0002A17D /* Assets.xcassets */,
 				D2350AE82180616B0002A17D /* Main.storyboard */,
 				D2350AEB2180616B0002A17D /* Info.plist */,
@@ -193,18 +180,10 @@
 			path = GerritJarvis;
 			sourceTree = "<group>";
 		};
-		D2758AF523083CA400CD2DA7 /* BlackList */ = {
-			isa = PBXGroup;
-			children = (
-				D2758AF623083CE900CD2DA7 /* BlackListPreferenceViewController.swift */,
-				D2758AF723083CE900CD2DA7 /* BlackListPreferenceViewController.xib */,
-			);
-			path = BlackList;
-			sourceTree = "<group>";
-		};
 		D2885986220B125F003495BC /* Gerrit */ = {
 			isa = PBXGroup;
 			children = (
+				8D71C8172C10684A00EBCD87 /* GerritClient.swift */,
 				D207F0DE2272BDD7000EB2B4 /* Utils */,
 				D2885988220B1279003495BC /* Model */,
 				D2885987220B1274003495BC /* Service */,
@@ -234,39 +213,21 @@
 		D291E2F4228581CA0033614B /* ReviewList */ = {
 			isa = PBXGroup;
 			children = (
-				D291E3022287FB440033614B /* DataController */,
 				D291E2FC22858A690033614B /* Model */,
-				D291E2F7228581EE0033614B /* ViewModel */,
 				D291E2F6228581E90033614B /* View */,
-				D291E322228B33FB0033614B /* Xib */,
-				D291E2F5228581E10033614B /* ViewController */,
+				8D71C8152C0F3D5900EBCD87 /* ReviewListView.swift */,
 			);
 			path = ReviewList;
-			sourceTree = "<group>";
-		};
-		D291E2F5228581E10033614B /* ViewController */ = {
-			isa = PBXGroup;
-			children = (
-				D26AC9A52272E96900D65397 /* ReviewListViewController.swift */,
-			);
-			path = ViewController;
 			sourceTree = "<group>";
 		};
 		D291E2F6228581E90033614B /* View */ = {
 			isa = PBXGroup;
 			children = (
-				D26AC9AD22731A1500D65397 /* ReviewListCell.swift */,
-				D291E327228B34BD0033614B /* ReviewListEmptyView.swift */,
+				8D295C2D2C07468D003380EF /* ReviewCell.swift */,
+				8D71C8112C0EC8B000EBCD87 /* GerritReviewCell.swift */,
+				8D71C8132C0F347600EBCD87 /* GitLabReviewCell.swift */,
 			);
 			path = View;
-			sourceTree = "<group>";
-		};
-		D291E2F7228581EE0033614B /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				D291E2F8228582060033614B /* ReviewListCellViewModel.swift */,
-			);
-			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		D291E2FC22858A690033614B /* Model */ = {
@@ -277,78 +238,24 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
-		D291E3022287FB440033614B /* DataController */ = {
-			isa = PBXGroup;
-			children = (
-				D291E3062287FEB90033614B /* ReviewListDataController.swift */,
-			);
-			path = DataController;
-			sourceTree = "<group>";
-		};
 		D291E314228B157F0033614B /* Preference */ = {
 			isa = PBXGroup;
 			children = (
-				D291E321228B33CD0033614B /* Manager */,
-				D291E315228B15C60033614B /* General */,
-				D291E31A228B161F0033614B /* Account */,
-				D2758AF523083CA400CD2DA7 /* BlackList */,
+				D291E3042287FB810033614B /* ConfigManager.swift */,
+				8D50D3082BEF4C5700E8AC01 /* GitlabAccountSettingView.swift */,
+				8D8E0C392BFDF4BC00AAAD34 /* GeneralPreferenceView.swift */,
+				8D8E0C3B2BFEE78300AAAD34 /* GerritAccountPreferenceView.swift */,
+				8D8E0C3E2C0091C900AAAD34 /* GerritBlackListView.swift */,
 			);
 			path = Preference;
-			sourceTree = "<group>";
-		};
-		D291E315228B15C60033614B /* General */ = {
-			isa = PBXGroup;
-			children = (
-				D291E316228B15EC0033614B /* GeneralPreferenceViewController.swift */,
-				D28FB8652309A7C100E00339 /* GeneralPreferenceViewController.xib */,
-			);
-			path = General;
-			sourceTree = "<group>";
-		};
-		D291E31A228B161F0033614B /* Account */ = {
-			isa = PBXGroup;
-			children = (
-				D291E31B228B172E0033614B /* AccountPreferenceViewController.swift */,
-				8D50D3082BEF4C5700E8AC01 /* GitlabAccountSettingView.swift */,
-				D291E31C228B172E0033614B /* AccountPreferenceViewController.xib */,
-			);
-			path = Account;
-			sourceTree = "<group>";
-		};
-		D291E321228B33CD0033614B /* Manager */ = {
-			isa = PBXGroup;
-			children = (
-				D291E3042287FB810033614B /* ConfigManager.swift */,
-			);
-			path = Manager;
-			sourceTree = "<group>";
-		};
-		D291E322228B33FB0033614B /* Xib */ = {
-			isa = PBXGroup;
-			children = (
-				D26AC9AB227319F100D65397 /* ReviewListCell.xib */,
-				D291E323228B343E0033614B /* ReviewListEmptyView.xib */,
-			);
-			path = Xib;
 			sourceTree = "<group>";
 		};
 		D291E325228B34610033614B /* Foundation */ = {
 			isa = PBXGroup;
 			children = (
-				D291E326228B347D0033614B /* View */,
 				8DE9861D2BFB2DC4008A0BFD /* NotificationHandler.swift */,
 			);
 			path = Foundation;
-			sourceTree = "<group>";
-		};
-		D291E326228B347D0033614B /* View */ = {
-			isa = PBXGroup;
-			children = (
-				D291E31F228B2C300033614B /* PasteTextField.swift */,
-				D2BBB38122998E0D00288865 /* PasteTextView.swift */,
-				D291E2F222856E1C0033614B /* VerticallyCenteredTextFieldCell.swift */,
-			);
-			path = View;
 			sourceTree = "<group>";
 		};
 		D297346B229B99DE00C51043 /* Manager */ = {
@@ -417,6 +324,7 @@
 				8D50D2FD2BEE074100E8AC01 /* LaunchAtLogin */,
 				8D50D3162BF4932500E8AC01 /* SDWebImageSwiftUI */,
 				8D8E0C342BFB703400AAAD34 /* GitLabSwift */,
+				8D8E0C372BFDDAC300AAAD34 /* ComposableArchitecture */,
 			);
 			productName = GerritJarvis;
 			productReference = D2350ADF2180616A0002A17D /* GerritJarvis.app */;
@@ -461,6 +369,7 @@
 				8D50D2FC2BEE074100E8AC01 /* XCRemoteSwiftPackageReference "LaunchAtLogin" */,
 				8D50D3152BF4932500E8AC01 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 				8D8E0C332BFB703400AAAD34 /* XCRemoteSwiftPackageReference "GitLabSwift" */,
+				8D8E0C362BFDDAC300AAAD34 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 			);
 			productRefGroup = D2350AE02180616A0002A17D /* Products */;
 			projectDirPath = "";
@@ -476,14 +385,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D28FB8632309A7C100E00339 /* GeneralPreferenceViewController.xib in Resources */,
-				D291E31E228B172E0033614B /* AccountPreferenceViewController.xib in Resources */,
 				D2BBB3802299862700288865 /* MergedTriggerWindowController.xib in Resources */,
-				D26AC9AC227319F100D65397 /* ReviewListCell.xib in Resources */,
 				D28FB85F23099F2200E00339 /* Localizable.strings in Resources */,
 				D2350AE72180616B0002A17D /* Assets.xcassets in Resources */,
-				D2758AF923083CE900CD2DA7 /* BlackListPreferenceViewController.xib in Resources */,
-				D291E324228B343E0033614B /* ReviewListEmptyView.xib in Resources */,
 				D2350AEA2180616B0002A17D /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -495,34 +399,32 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D291E2F322856E1C0033614B /* VerticallyCenteredTextFieldCell.swift in Sources */,
 				D291E2FB22858A620033614B /* ReviewScore.swift in Sources */,
 				D2885990220BE633003495BC /* GerritService.swift in Sources */,
-				D26AC9AE22731A1500D65397 /* ReviewListCell.swift in Sources */,
-				D291E328228B34BD0033614B /* ReviewListEmptyView.swift in Sources */,
-				D291E318228B15EC0033614B /* GeneralPreferenceViewController.swift in Sources */,
+				8D71C8162C0F3D5900EBCD87 /* ReviewListView.swift in Sources */,
+				8D71C8142C0F347600EBCD87 /* GitLabReviewCell.swift in Sources */,
+				8D295C2E2C07468D003380EF /* ReviewCell.swift in Sources */,
+				8D8E0C3A2BFDF4BC00AAAD34 /* GeneralPreferenceView.swift in Sources */,
 				D207F0E02272BE06000EB2B4 /* GerritResponseUtils.swift in Sources */,
 				D297346D229B99F800C51043 /* MergedTriggerManager.swift in Sources */,
 				D2BBB37F2299862700288865 /* MergedTriggerWindowController.swift in Sources */,
 				8DE9861E2BFB2DC4008A0BFD /* NotificationHandler.swift in Sources */,
-				D2758AF823083CE900CD2DA7 /* BlackListPreferenceViewController.swift in Sources */,
 				D26AC9A42272D5BE00D65397 /* GerritModelHelper.swift in Sources */,
-				D291E320228B2C300033614B /* PasteTextField.swift in Sources */,
 				D291E309228976610033614B /* GerritUtils.swift in Sources */,
-				D26AC9A62272E96900D65397 /* ReviewListViewController.swift in Sources */,
-				D291E3072287FEB90033614B /* ReviewListDataController.swift in Sources */,
 				D291E3052287FB810033614B /* ConfigManager.swift in Sources */,
 				8D50D30F2BEF670600E8AC01 /* GitLabService.swift in Sources */,
-				D291E2F9228582060033614B /* ReviewListCellViewModel.swift in Sources */,
 				D2350AE32180616A0002A17D /* AppDelegate.swift in Sources */,
 				D288598E220BE3C1003495BC /* Message.swift in Sources */,
+				8D71C8122C0EC8B000EBCD87 /* GerritReviewCell.swift in Sources */,
 				8D50D3092BEF4C5700E8AC01 /* GitlabAccountSettingView.swift in Sources */,
-				D2BBB38222998E0D00288865 /* PasteTextView.swift in Sources */,
+				8D8E0C3C2BFEE78300AAAD34 /* GerritAccountPreferenceView.swift in Sources */,
+				8D71C8182C10684A00EBCD87 /* GerritClient.swift in Sources */,
 				8D50D3112BEF685800E8AC01 /* GitLabConfigs.swift in Sources */,
+				8D40260C2C12F50600C9A729 /* JarvisClient.swift in Sources */,
 				D207F0DD2272BBA5000EB2B4 /* Avatar.swift in Sources */,
 				D288598D220BE3C1003495BC /* Author.swift in Sources */,
 				D288598C220BE3C1003495BC /* Change.swift in Sources */,
-				D291E31D228B172E0033614B /* AccountPreferenceViewController.swift in Sources */,
+				8D8E0C3F2C0091C900AAAD34 /* GerritBlackListView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -544,16 +446,6 @@
 				D28FB86223099F4A00E00339 /* zh-Hans */,
 			);
 			name = Localizable.strings;
-			sourceTree = "<group>";
-		};
-		D28FB8652309A7C100E00339 /* GeneralPreferenceViewController.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				D28FB8642309A7C100E00339 /* Base */,
-				D28FB8672309A7ED00E00339 /* en */,
-				D28FB8692309A7EF00E00339 /* zh-Hans */,
-			);
-			name = GeneralPreferenceViewController.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -680,6 +572,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = GerritJarvis/GerritJarvis.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
@@ -710,6 +603,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = GerritJarvis/GerritJarvis.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
@@ -812,8 +706,16 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Eh9/GitLabSwift";
 			requirement = {
-				kind = revision;
-				revision = b35dfada4150cfa7f86dd447600089d27e7d5832;
+				branch = main;
+				kind = branch;
+			};
+		};
+		8D8E0C362BFDDAC300AAAD34 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 1.10.4;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -853,6 +755,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8D8E0C332BFB703400AAAD34 /* XCRemoteSwiftPackageReference "GitLabSwift" */;
 			productName = GitLabSwift;
+		};
+		8D8E0C372BFDDAC300AAAD34 /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8D8E0C362BFDDAC300AAAD34 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

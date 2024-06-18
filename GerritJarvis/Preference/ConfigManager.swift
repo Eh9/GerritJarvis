@@ -8,6 +8,13 @@
 
 import Cocoa
 
+extension Notification.Name {
+    static let RefreshFrequencyUpdatedNotification = Notification.Name("RefreshFrequencyUpdatedNotification")
+    static let AccountUpdatedNotification = Notification.Name("AccountUpdatedNotification")
+    static let ReviewListUpdatedNotification = Notification.Name("ReviewListUpdatedNotification")
+}
+
+// TODO: merge to JarvisClient
 class ConfigManager {
     // 单位为分钟，值必须在 General Preference 的 frequency 选择列表中
     static let DefaultRefreshFrequency: TimeInterval = 3
@@ -18,12 +25,7 @@ class ConfigManager {
     static let UserKey = "UserKey"
     static let PasswordKey = "PasswordKey"
     static let AccountIdKey = "AccountIdKey"
-    static let RefreshFrequencyKey = "RefreshFrequencyKey"
     static let BlacklistKey = "BlacklistKey"
-    private let LaunchAtLoginKey = "LaunchAtLoginKey"
-    private let ShouldNotifyMergeConflict = "ShouldNotifyMergeConflict"
-    private let ShouldNotifyNewIncomingReviewKey = "ShouldNotifyNewIncomingReviewKey"
-    private let ShowOurNotReadyReviewKey = "ShowOurNotReadyReviewKey"
 
     enum BlacklistType {
         static let User = "User"
@@ -38,76 +40,12 @@ class ConfigManager {
     private(set) var accountId: Int?
     private(set) var blacklist = [(String, String)]()
 
-    var refreshFrequency: TimeInterval {
-        get {
-            let frequency = UserDefaults.standard.double(forKey: ConfigManager.RefreshFrequencyKey)
-            guard frequency != 0 else {
-                return ConfigManager.DefaultRefreshFrequency
-            }
-            return frequency
-        }
-        set {
-            guard newValue > 0 else {
-                return
-            }
-            UserDefaults.standard.set(newValue, forKey: ConfigManager.RefreshFrequencyKey)
-            NotificationCenter.default.post(
-                name: ConfigManager.RefreshFrequencyUpdatedNotification,
-                object: nil,
-                userInfo: [ConfigManager.RefreshFrequencyKey: newValue]
-            )
-        }
-    }
-
-    var launchAtLogin: Bool {
-        get {
-            return UserDefaults.standard.bool(forKey: LaunchAtLoginKey)
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: LaunchAtLoginKey)
-        }
-    }
-
-    var shouldNotifyMergeConflict: Bool {
-        get {
-            return UserDefaults.standard.bool(forKey: ShouldNotifyMergeConflict)
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: ShouldNotifyMergeConflict)
-        }
-    }
-
-    var shouldNotifyNewIncomingReview: Bool {
-        get {
-            return UserDefaults.standard.bool(forKey: ShouldNotifyNewIncomingReviewKey)
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: ShouldNotifyNewIncomingReviewKey)
-        }
-    }
-
-    var showOurNotReadyReview: Bool {
-        get {
-            return UserDefaults.standard.bool(forKey: ShowOurNotReadyReviewKey)
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: ShowOurNotReadyReviewKey)
-        }
-    }
-
     init() {
         self.baseUrl = UserDefaults.standard.string(forKey: ConfigManager.BaseUrlKey)
         self.user = UserDefaults.standard.string(forKey: ConfigManager.UserKey)
         self.password = UserDefaults.standard.string(forKey: ConfigManager.PasswordKey)
         self.accountId = UserDefaults.standard.integer(forKey: ConfigManager.AccountIdKey)
         fetchBlacklist()
-
-        if UserDefaults.standard.value(forKey: ShouldNotifyMergeConflict) == nil {
-            self.shouldNotifyMergeConflict = true
-        }
-        if UserDefaults.standard.value(forKey: ShouldNotifyNewIncomingReviewKey) == nil {
-            self.shouldNotifyNewIncomingReview = true
-        }
     }
 
     func hasUser() -> Bool {
@@ -147,15 +85,13 @@ class ConfigManager {
     }
 
     func appendBlacklist(type: String, value: String) {
+        guard !blacklist.contains(where: { $0.0 == type && $0.1 == value }) else { return }
         blacklist.append((type, value))
         saveBlacklist()
     }
 
-    func removeBlacklist(at index: Int) {
-        guard index >= 0, index < blacklist.count else {
-            return
-        }
-        blacklist.remove(at: index)
+    func removeBlacklist(type: String, value: String) {
+        blacklist.removeAll { $0.0 == type && $0.1 == value }
         saveBlacklist()
     }
 
