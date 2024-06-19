@@ -19,7 +19,6 @@ struct GitLabReviewDisplay {
         var downvotes: Int = 0
         var threadCount: Int = 0
         var approved: Bool = false
-        // TODO: add target branch
     }
 
     @Dependency(\.openURL) var openURL
@@ -67,18 +66,16 @@ struct GitLabReviewCell: View {
                 Divider()
                 Spacer()
                 VStack {
-                    Text("👍:\(store.upvotes)   👎:\(store.downvotes)")
-                        .lineLimit(1)
-                        .font(.system(size: 10))
-                    Spacer()
+                    if store.threadCount > 0 {
+                        Text("\(store.threadCount) unresolved threads").font(.system(size: 10))
+                        Spacer()
+                    }
                     if store.approved {
                         Image(systemName: "checkmark")
                             .foregroundStyle(.green)
-                    }
-                    Spacer()
-                    if store.threadCount > 0 {
-                        Text("\(store.threadCount) unresolved threads")
-                            .font(.system(size: 8))
+                            .font(.title)
+                    } else {
+                        Text("👍:\(store.upvotes)")
                     }
                 }
                 Spacer()

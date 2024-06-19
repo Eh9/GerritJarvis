@@ -115,7 +115,12 @@ class GitlabService {
                 if !result.contains(where: { $0.id == mr.id }), mr.draft != true {
                     result.append(mr)
                 }
-            }.sorted { self.sortMRs($0, $1) }
+            }.sorted {
+                self.sortMRs($0, $1)
+            }.reduce(into: []) { result, mr in // 把自己的 MR 放到最前
+                if mr.author?.isNotMe == false { result.insert(mr, at: 0) }
+                else { result.append(mr) }
+            }
         }
         notifyNewMR(newMrs: mrs)
         mrsNotTracking = trackingMRs.filter { mr in !mrs.contains(where: { $0.id == mr.id }) }

@@ -135,9 +135,26 @@ struct ReviewListView: View {
 
     private var listView: some View {
         List {
-            gitlabReviewsView
-            gerritReviewsView
+            if store.gerritReviews.isEmpty, store.gitlabReviews.isEmpty {
+                Spacer()
+                Text("No Review 😎")
+                Spacer()
+            } else {
+                if !store.gitlabReviews.isEmpty {
+                    Text("GitLab Reviews")
+                        .foregroundStyle(Color.secondary)
+                        .padding(.leading)
+                    gitlabReviewsView
+                }
+                if !store.gerritReviews.isEmpty {
+                    Text("Gerrit Reviews")
+                        .foregroundStyle(Color.secondary)
+                        .padding(store.gitlabReviews.isEmpty ? .leading : [.leading, .top])
+                    gerritReviewsView
+                }
+            }
         }
+        .frame(minHeight: 200, maxHeight: 557)
         .listStyle(.plain)
     }
 
