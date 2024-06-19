@@ -47,6 +47,7 @@ struct ReviewList {
             case .clearNewEvent:
                 return .run { send in
                     jarvisClient.clearNewEvent()
+                    await send(.updateList)
                 }
             case .refreshData:
                 state.loading = true

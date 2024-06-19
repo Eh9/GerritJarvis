@@ -37,6 +37,7 @@ class GitlabService {
     private init() {}
 
     @Shared(.shouldNotifyNewIncomingReview) var shouldNotifyNewIncomingReview = false
+    @Shared(.onlyNotifyEventAboutMySelf) var onlyNotifyEventAboutMySelf = true
 
     private var user: String!
     private var gitlab: GLApi!
@@ -47,8 +48,6 @@ class GitlabService {
     private(set) var discussionInfos: [Int: [GLModel.Discussion]] = [:] // mr.id: notes
     private(set) var approvalInfos: [Int: GLModel.MergeRequestApprovals] = [:] // mr.id: approvalInfo
     private(set) var mrsUpdated: [GLModel.MergeRequest] = []
-
-    private var iWannaKnowEverything = false
 
     private var mrsNotTracking: [GLModel.MergeRequest] = []
     private var mrUpdateTime: [Int: Date?] = [:] // mr.id: updateDate
@@ -97,23 +96,26 @@ class GitlabService {
         guard !user.isEmpty else { return }
         await setupUserInfo()
 
-        var mrs: [GLModel.MergeRequest] = []
-        for text in concernedTexts {
-            // TODO: fetch MRs in parallel
-            if let groupMRs = await fetchMRList(searchText: text) {
-                mrs.append(contentsOf: groupMRs)
+        let mrs: [GLModel.MergeRequest] = await withTaskGroup(
+            of: [GLModel.MergeRequest].self,
+            returning: [GLModel.MergeRequest].self
+        ) { [weak self] taskGroup in
+            guard let self else { return [] }
+            for text in concernedTexts {
+                taskGroup.addTask { await self.fetchMRList(searchText: text) ?? [] }
             }
-        }
-        if let ownedMRs = await fetchOwnedMRs() {
-            mrs.append(contentsOf: ownedMRs)
-        }
-        if let reviewedMRs = await fetchReviewedMRs() {
-            mrs.append(contentsOf: reviewedMRs)
-        }
-        mrs = mrs.reduce(into: []) { result, mr in
-            if !result.contains(where: { $0.id == mr.id }), mr.draft != true {
-                result.append(mr)
+            for groupId in GitLabConfigs.groupInfo.observedGroups {
+                taskGroup.addTask { await self.fetchMRListInGroup(id: groupId) ?? [] }
             }
+            taskGroup.addTask { await self.fetchOwnedMRs() ?? [] }
+            taskGroup.addTask { await self.fetchReviewedMRs() ?? [] }
+            return await taskGroup.reduce(into: []) { result, groupMRs in
+                result.append(contentsOf: groupMRs)
+            }.reduce(into: []) { result, mr in
+                if !result.contains(where: { $0.id == mr.id }), mr.draft != true {
+                    result.append(mr)
+                }
+            }.sorted { self.sortMRs($0, $1) }
         }
         notifyNewMR(newMrs: mrs)
         mrsNotTracking = trackingMRs.filter { mr in !mrs.contains(where: { $0.id == mr.id }) }
@@ -122,19 +124,15 @@ class GitlabService {
         trackingMRs = mrs
         mrUpdateTime = .init(uniqueKeysWithValues: mrs.map { ($0.id, $0.updated_at) })
         for mr in mrs {
-            if projectInfos[mr.project_id] == nil, let project = await fetchProject(id: mr.project_id) {
-                projectInfos[mr.project_id] = project
-            }
-            if discussionInfos[mr.id] == nil,
-               let discussions = await fetchMRDiscussions(id: mr.iid, projectId: mr.project_id)
-            {
-                discussionInfos[mr.id] = discussions.filter { $0.isNotSystem }
-            }
-            if approvalInfos[mr.id] == nil,
-               let approvals = await fetchMRApprovals(id: mr.iid, projectId: mr.project_id)
-            {
-                approvalInfos[mr.id] = approvals
-            }
+            async let project =
+                projectInfos[mr.project_id] == nil ? fetchProject(id: mr.project_id) : nil
+            async let discussions =
+                discussionInfos[mr.id] == nil ? fetchMRDiscussions(id: mr.iid, projectId: mr.project_id) : nil
+            async let approvals =
+                approvalInfos[mr.id] == nil ? fetchMRApprovals(id: mr.iid, projectId: mr.project_id) : nil
+            if let project = await project { projectInfos[mr.project_id] = project }
+            if let discussions = await discussions { discussionInfos[mr.id] = discussions.filter { $0.isNotSystem } }
+            if let approvals = await approvals { approvalInfos[mr.id] = approvals }
         }
         await notityNotTrackingMR()
         await notifyUpdatedMR()
@@ -205,6 +203,7 @@ class GitlabService {
             if let oldMr = trackingMRs.first(where: { $0.id == newMr.id }),
                oldMr.downvotes != newMr.downvotes || oldMr.upvotes != newMr.upvotes
             {
+                if onlyNotifyEventAboutMySelf, newMr.author?.isNotMe == true { return }
                 UserNotificationHandler.shared.sendNotification(
                     title: "\(newMr.title ?? "")",
                     body: "votes updated. 👍:\(newMr.upvotes)     👎:\(newMr.downvotes)",
@@ -216,6 +215,7 @@ class GitlabService {
 
     private func notityNotTrackingMR() async {
         for mr in mrsNotTracking {
+            if onlyNotifyEventAboutMySelf, mr.author?.isNotMe == true { return }
             if let updatedMR = await fetchMRStatus(id: mr.iid, projectId: mr.project_id) {
                 var message: String = ""
                 if let mergedBy = updatedMR.merged_by, let mergedAt = updatedMR.merged_at, mergedBy.isNotMe {
@@ -242,12 +242,12 @@ class GitlabService {
             let newDiscussionInfos = discussions.filter { $0.isNotSystem }
             defer { discussionInfos[mr.id] = newDiscussionInfos }
             guard let oldNotes = discussionInfos[mr.id]?.flatMap(\.notes) else { continue }
-            let newNotes = if iWannaKnowEverything { // if I wanna know everything, notify all comments
-                newDiscussionInfos.flatMap(\.notes)
-            } else { // if i only concerned about myself, notify comments related to me
+            let newNotes = if onlyNotifyEventAboutMySelf {
                 newDiscussionInfos.filter {
                     mr.author?.isNotMe == false || $0.iParticipatedInDiscussion || $0.mentionsAnyTexts(concernedTexts)
                 }.flatMap(\.notes)
+            } else {
+                newDiscussionInfos.flatMap(\.notes)
             }
             let updateNotes: [GLModel.Discussion.Note] = newNotes.filter { $0.author?.isNotMe == true }
                 .compactMap { note in
@@ -287,6 +287,23 @@ class GitlabService {
         }
     }
 
+    private func setupUserInfo() async {
+        GitLabConfigs.groups = await fetchGroupInfo()
+        GitLabConfigs.userInfo = await fetchUserInfo()
+        if let email = GitLabConfigs.userInfo?.email { GitLabConfigs.user = email }
+        GitLabConfigs.hasSetup = GitLabConfigs.userInfo != nil
+        await GitLabConfigs.setupGroupInfo()
+    }
+
+    private func sortMRs(_ mr1: GLModel.MergeRequest, _ mr2: GLModel.MergeRequest) -> Bool {
+        guard let t1 = mr1.updated_at, let t2 = mr2.updated_at else { return false }
+        return t1 > t2
+    }
+}
+
+// MARK: - GitLab Requests
+
+private extension GitlabService {
     private func fetchUserInfo() async -> GLModel.User? {
         do { return try await gitlab.users.me().decode() }
         catch {
@@ -306,24 +323,24 @@ class GitlabService {
         }
     }
 
-    private func setupUserInfo() async {
-        GitLabConfigs.groups = await fetchGroupInfo()
-        GitLabConfigs.userInfo = await fetchUserInfo()
-        if let email = GitLabConfigs.userInfo?.email { GitLabConfigs.user = email }
-        GitLabConfigs.hasSetup = GitLabConfigs.userInfo != nil
-        await GitLabConfigs.setupGroupInfo()
-    }
-}
-
-// MARK: - GitLab Requests
-
-private extension GitlabService {
     private func fetchMRList(searchText: String) async -> [GLModel.MergeRequest]? {
         guard let text = searchText.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else { return nil }
         do {
             let response: GLResponse<[GLModel.MergeRequest]>? =
                 try await gitlab.execute(.init(endpoint: CustomURLs.mergeRequest(searchText: text)))
             return try response?.decode()
+        } catch {
+            logger.error("\(error, privacy: .public)")
+            return nil
+        }
+    }
+
+    private func fetchMRListInGroup(id: Int) async -> [GLModel.MergeRequest]? {
+        do {
+            return try await gitlab.mergeRequest.list(group: id) {
+                $0.state = .opened
+                $0.perPage = 100
+            }.decode()
         } catch {
             logger.error("\(error, privacy: .public)")
             return nil
@@ -372,9 +389,20 @@ private extension GitlabService {
         }
     }
 
-    private func fetchMRDiscussions(id: Int, projectId: Int) async -> [GLModel.Discussion]? {
-        do { return try await gitlab.mergeRequest.discussions(id, project: .id(projectId)).decode() }
-        catch {
+    private func fetchMRDiscussions(id: Int, projectId: Int, page: Int = 1) async -> [GLModel.Discussion]? {
+        do {
+            let response: GLResponse<[GLModel.Discussion]>? =
+                try await gitlab.execute(
+                    .init(endpoint: CustomURLs.discusstions(mrId: id, projectId: projectId, page: page))
+                )
+            let result = try response?.decode() ?? []
+            if let nextPage = Int(response?.httpResponse.headers.value(for: "x-next-page") ?? ""), nextPage > 0 {
+                let moreData = await fetchMRDiscussions(id: id, projectId: projectId, page: nextPage)
+                return result + (moreData ?? [])
+            } else {
+                return result
+            }
+        } catch {
             logger.error("\(error, privacy: .public)")
             return nil
         }
@@ -445,11 +473,14 @@ private extension GLModel.Discussion {
 private enum CustomURLs: GLEndpoint {
     case groups
     case mergeRequest(searchText: String)
+    case discusstions(mrId: Int, projectId: Int, page: Int)
 
     public var value: String {
         switch self {
         case .groups: "/groups"
         case let .mergeRequest(searchText): "/merge_requests?state=opened&scope=all&per_page=100&search=\(searchText)"
+        case let .discusstions(mrId, projectId, page):
+            "/projects/\(projectId)/merge_requests/\(mrId)/discussions?page=\(page)"
         }
     }
 }
