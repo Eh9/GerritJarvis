@@ -147,6 +147,11 @@ class GitlabService {
 
     func resetNewStateOfMR(id: Int) {
         mrsNewEventInfo[id] = nil
+        NotificationCenter.default.post(
+            name: ReviewListNewEvents.notificationName,
+            object: nil,
+            userInfo: nil
+        )
     }
 
     func clearNewEvent() {
@@ -342,10 +347,9 @@ private extension GitlabService {
 
     private func fetchMRListInGroup(id: Int) async -> [GLModel.MergeRequest]? {
         do {
-            return try await gitlab.mergeRequest.list(group: id) {
-                $0.state = .opened
-                $0.perPage = 100
-            }.decode()
+            let response: GLResponse<[GLModel.MergeRequest]>? =
+                try await gitlab.execute(.init(endpoint: CustomURLs.mergeRequestInGroup(id: id)))
+            return try response?.decode()
         } catch {
             logger.error("\(error, privacy: .public)")
             return nil
@@ -478,12 +482,15 @@ private extension GLModel.Discussion {
 private enum CustomURLs: GLEndpoint {
     case groups
     case mergeRequest(searchText: String)
+    case mergeRequestInGroup(id: Int)
     case discusstions(mrId: Int, projectId: Int, page: Int)
 
+    // 最多展示 100 条
     public var value: String {
         switch self {
         case .groups: "/groups"
         case let .mergeRequest(searchText): "/merge_requests?state=opened&scope=all&per_page=100&search=\(searchText)"
+        case let .mergeRequestInGroup(id): "/groups/\(id)/merge_requests?state=opened&scope=all&per_page=100"
         case let .discusstions(mrId, projectId, page):
             "/projects/\(projectId)/merge_requests/\(mrId)/discussions?page=\(page)"
         }

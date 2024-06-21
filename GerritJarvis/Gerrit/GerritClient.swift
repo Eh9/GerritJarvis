@@ -116,6 +116,11 @@ class GerritClient {
     func resetNewStateOfChange(id: String) {
         guard let change = trackingChanges.first(where: { $0.id == id }) else { return }
         newEventStates[change.newEventKey()] = false
+        NotificationCenter.default.post(
+            name: ReviewListNewEvents.notificationName,
+            object: nil,
+            userInfo: nil
+        )
     }
 
     func clearNewEvent() {
