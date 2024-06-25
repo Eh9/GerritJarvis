@@ -76,13 +76,13 @@ struct ReviewCell: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 35, height: 35)
                         .clipShape(Circle())
+                        .overlay(alignment: .topLeading) {
+                            if store.hasNewEvent { Circle().foregroundStyle(.red).frame(width: 6, height: 6) }
+                        }
                     Text(store.name).frame(maxWidth: 40).lineLimit(2)
                         .font(.system(size: 11, weight: .semibold))
                         .opacity(0.7)
                         .multilineTextAlignment(.center)
-                        .overlay(alignment: .topLeading) {
-                            if store.hasNewEvent { Circle().foregroundStyle(.red).frame(width: 4, height: 4) }
-                        }
                 }.padding(.leading).onTapGesture {
                     store.send(.didPressAuthor)
                 }
