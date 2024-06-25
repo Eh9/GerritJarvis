@@ -122,12 +122,6 @@ class GitlabService {
                 else { result.append(mr) }
             }
         }
-        notifyNewMR(newMrs: mrs)
-        mrsNotTracking = trackingMRs.filter { mr in !mrs.contains(where: { $0.id == mr.id }) }
-        mrsUpdated = mrs.compactMap { if let t = mrUpdateTime[$0.id], t != $0.updated_at { $0 } else { nil } }
-        notifyVotes(newMrs: mrs)
-        trackingMRs = mrs
-        mrUpdateTime = .init(uniqueKeysWithValues: mrs.map { ($0.id, $0.updated_at) })
         for mr in mrs {
             async let project =
                 projectInfos[mr.project_id] == nil ? fetchProject(id: mr.project_id) : nil
@@ -139,6 +133,12 @@ class GitlabService {
             if let discussions = await discussions { discussionInfos[mr.id] = discussions.filter { $0.isNotSystem } }
             if let approvals = await approvals { approvalInfos[mr.id] = approvals }
         }
+        notifyNewMR(newMrs: mrs)
+        mrsNotTracking = trackingMRs.filter { mr in !mrs.contains(where: { $0.id == mr.id }) }
+        mrsUpdated = mrs.compactMap { if let t = mrUpdateTime[$0.id], t != $0.updated_at { $0 } else { nil } }
+        notifyVotes(newMrs: mrs)
+        trackingMRs = mrs
+        mrUpdateTime = .init(uniqueKeysWithValues: mrs.map { ($0.id, $0.updated_at) })
         await notityNotTrackingMR()
         await notifyUpdatedMR()
         // TODO: repeat notify when fetch error
@@ -193,8 +193,15 @@ class GitlabService {
         guard hasFinishedFirstFetch, shouldNotifyNewIncomingReview else { return }
         newMrs.forEach { newMr in
             guard !trackingMRs.contains(where: { $0.id == newMr.id }),
-                  newMr.author?.isNotMe == true
+                  newMr.author?.isNotMe == true,
+                  let description = newMr.description,
+                  !concernedTexts.allSatisfy({ description.range(of: $0) == nil &&
+                          discussionInfos[newMr.id]?.allSatisfy({ discussion in
+                              discussion.mentionsAnyTexts(concernedTexts) == false
+                          }) == true
+                  })
             else { return }
+            if onlyNotifyEventAboutMySelf, newMr.isNotMine { return }
             if mrsNewEventInfo[newMr.id] == nil { mrsNewEventInfo[newMr.id] = .noneNewEvent }
             mrsNewEventInfo[newMr.id]?.insert(.newMR)
             UserNotificationHandler.shared.sendNotification(
@@ -282,6 +289,7 @@ class GitlabService {
         for mr in mrsUpdated {
             guard let approval = await fetchMRApprovals(id: mr.iid, projectId: mr.project_id) else { continue }
             defer { approvalInfos[mr.id] = approval }
+            if onlyNotifyEventAboutMySelf, mr.isNotMine { return }
             guard let oldApproval = approvalInfos[mr.id] else { continue }
             if let newUsers = approval.approved_by?.compactMap({ approvalBy in
                 if (oldApproval.approved_by ?? []).contains(where: { $0.user.id == approvalBy.user.id }) == false,
@@ -456,6 +464,12 @@ extension GitlabService {
 private extension GLModel.User {
     var isNotMe: Bool {
         id != GitLabConfigs.userInfo?.id
+    }
+}
+
+private extension GLModel.MergeRequest {
+    var isNotMine: Bool {
+        author?.isNotMe == true && !(reviewers ?? []).contains { $0.isNotMe == false }
     }
 }
 
